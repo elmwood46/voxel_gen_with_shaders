@@ -1,0 +1,24 @@
+[gd_resource type="ShaderMaterial" load_steps=5 format=3 uid="uid://bl3dyguivkmp8"]
+
+[ext_resource type="Texture2D" uid="uid://jxi11u8y15n" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_COLOR.jpg" id="1_begqb"]
+[ext_resource type="Shader" uid="uid://dr3f7edqs76q3" path="res://BlockTextures/textureExperiment/new_shader.tres" id="1_mwmff"]
+[ext_resource type="Texture2D" uid="uid://ckmcqse4x1kic" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_NORM.jpg" id="2_u0rdv"]
+[ext_resource type="Texture2D" uid="uid://clqiwt1nhoxun" path="res://BlockTextures/textureExperiment/Dirt_004_ROUGH.jpg" id="4_yii2p"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_mwmff")
+shader_parameter/albedo = Color(1, 1, 1, 1)
+shader_parameter/point_size = 1.0
+shader_parameter/roughness = 1.0
+shader_parameter/metallic_texture_channel = null
+shader_parameter/specular = 0.0
+shader_parameter/metallic = 0.0
+shader_parameter/normal_scale = 3.222
+shader_parameter/uv1_scale = Vector3(1, 1, 1)
+shader_parameter/uv1_offset = Vector3(0, 0, 0)
+shader_parameter/uv2_scale = Vector3(1, 1, 1)
+shader_parameter/uv2_offset = Vector3(0, 0, 0)
+shader_parameter/texture_albedo = ExtResource("1_begqb")
+shader_parameter/texture_roughness = ExtResource("4_yii2p")
+shader_parameter/texture_normal = ExtResource("2_u0rdv")

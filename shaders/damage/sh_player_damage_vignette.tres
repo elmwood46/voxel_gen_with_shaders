@@ -1,0 +1,10 @@
+[gd_resource type="ShaderMaterial" load_steps=3 format=3 uid="uid://dm5h8sv5b2ina"]
+
+[ext_resource type="Shader" path="res://shaders/damage/sh_player_damage_vignette.gdshader" id="1_yvnqw"]
+[ext_resource type="Texture2D" uid="uid://er0qbyjkvg1t" path="res://shaders/damage/damage_vignette_texture.png" id="2_0ygcj"]
+
+[resource]
+render_priority = 127
+shader = ExtResource("1_yvnqw")
+shader_parameter/damage_ratio = 0.0
+shader_parameter/texture_albedo = ExtResource("2_0ygcj")

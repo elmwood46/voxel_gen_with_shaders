@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dnecth7wnht61"
+path="res://.godot/imported/compute_noise_fractal.glsl-cc9dffdb23e0c25d5f6def9a5a680ffa.res"
+
+[deps]
+
+source_file="res://compute_shaders/compute_noise_fractal.glsl"
+dest_files=["res://.godot/imported/compute_noise_fractal.glsl-cc9dffdb23e0c25d5f6def9a5a680ffa.res"]
+
+[params]
+

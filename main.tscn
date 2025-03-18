@@ -1,0 +1,613 @@
+[gd_scene load_steps=69 format=3 uid="uid://blp0l0liacp4g"]
+
+[ext_resource type="PackedScene" uid="uid://gxlf0mku2esi" path="res://block_manager.tscn" id="1_0xm2m"]
+[ext_resource type="PackedScene" uid="uid://c34gjn8qgnneo" path="res://simple_controller.tscn" id="1_ig7tw"]
+[ext_resource type="Texture2D" uid="uid://lfcjwjt4uvta" path="res://BlockTextures/EMPTY_TEXTURE.png" id="2_b1qrp"]
+[ext_resource type="Script" uid="uid://s86k4n4738lq" path="res://ChunkManager.cs" id="2_h2yge"]
+[ext_resource type="Script" uid="uid://wuolt7vnkyjw" path="res://Block.cs" id="3_come4"]
+[ext_resource type="Texture2D" uid="uid://bvlycywksqrek" path="res://BlockTextures/dirt.png" id="4_h8e4i"]
+[ext_resource type="Texture2D" uid="uid://bkpj5lder3h1q" path="res://BlockTextures/GrassSide.png" id="5_4lmeg"]
+[ext_resource type="Texture2D" uid="uid://b5au74chlqttb" path="res://BlockTextures/GrassTop.png" id="6_0cp0l"]
+[ext_resource type="Texture2D" uid="uid://cboj7dieehlc7" path="res://BlockTextures/stone.png" id="7_d2t1y"]
+[ext_resource type="Texture2D" uid="uid://dmph41b5t1n4k" path="res://BlockTextures/DIR4.png" id="8_gngh3"]
+[ext_resource type="Texture2D" uid="uid://qqm5veel8p5q" path="res://BlockTextures/DIR0.png" id="9_0n3wm"]
+[ext_resource type="Texture2D" uid="uid://d1t5s7l5jsbji" path="res://BlockTextures/DIR5.png" id="10_qnost"]
+[ext_resource type="Texture2D" uid="uid://bl8yvwntdy1np" path="res://BlockTextures/DIR2.png" id="11_wnkbs"]
+[ext_resource type="Texture2D" uid="uid://bb3ojl1muux38" path="res://BlockTextures/DIR3.png" id="12_f6a44"]
+[ext_resource type="Texture2D" uid="uid://cosa1rsx5mw38" path="res://BlockTextures/DIR1.png" id="13_0cbny"]
+[ext_resource type="Texture2D" uid="uid://8n4j3gjy3i45" path="res://BlockTextures/emerald_block (44).png" id="14_hrvbo"]
+[ext_resource type="Texture2D" uid="uid://crbe7ex127cio" path="res://BlockTextures/prismarine_bricks (7).png" id="15_uypp3"]
+[ext_resource type="Texture2D" uid="uid://151ahohl5cgo" path="res://BlockTextures/prismarine_dark (7).png" id="16_blkrb"]
+[ext_resource type="Texture2D" uid="uid://c4spwl71x1h4u" path="res://BlockTextures/trunkBase.png" id="17_abqjc"]
+[ext_resource type="Texture2D" uid="uid://uyvm30m1rae0" path="res://BlockTextures/trunk.png" id="18_6iyjs"]
+[ext_resource type="Texture2D" uid="uid://uk5enrojv8vn" path="res://BlockTextures/gold_ore (4).png" id="19_4w656"]
+[ext_resource type="Texture2D" uid="uid://bymmnewgso7pp" path="res://BlockTextures/cobblestone_mossy_top1.png" id="20_e71vb"]
+[ext_resource type="Texture2D" uid="uid://dhbwpoh8kobto" path="res://BlockTextures/cobblestone_mossy (45).png" id="21_rnkwl"]
+[ext_resource type="Texture2D" uid="uid://b04a0tgrb3rks" path="res://BlockTextures/cobblestone_mossy_top2.png" id="22_vke2r"]
+[ext_resource type="Texture2D" uid="uid://d1jw88jxh2w0u" path="res://BlockTextures/cobblestone_mossy (40).png" id="23_uit24"]
+[ext_resource type="Texture2D" uid="uid://ftdltua7l8fi" path="res://BlockTextures/cobblestone_mossy_top3.png" id="24_ruth0"]
+[ext_resource type="Texture2D" uid="uid://dns8guer7vsjd" path="res://BlockTextures/cobblestone_mossy_top.png" id="25_rm4vd"]
+[ext_resource type="Texture2D" uid="uid://comunjkk6lsxx" path="res://BlockTextures/cobblestone_mossy (9).png" id="26_pjyto"]
+[ext_resource type="Texture2D" uid="uid://da67tloawx4b4" path="res://BlockTextures/leavesredfast.png" id="27_sm6fg"]
+[ext_resource type="Texture2D" uid="uid://cnrtnxdxxiovx" path="res://BlockTextures/leavesyellowfast.png" id="28_b17eg"]
+[ext_resource type="Texture2D" uid="uid://b0xajo4pno782" path="res://BlockTextures/leaves_OgreLair_solid.png" id="29_ntx8l"]
+[ext_resource type="Texture2D" uid="uid://cvct6jfj3bjxj" path="res://BlockTextures/leaves_jungle_opaque (34).png" id="30_uatky"]
+[ext_resource type="Texture2D" uid="uid://dvysuo0i058n0" path="res://BlockTextures/leaves_WyvernLair_solid.png" id="31_rqtf5"]
+[ext_resource type="Texture2D" uid="uid://c2c2wedwuygsn" path="res://BlockTextures/leaves_spruce_opaque (14).png" id="32_1vm84"]
+[ext_resource type="Texture2D" uid="uid://cp0etpuiepma0" path="res://BlockTextures/lod_blocks/dirt_lod.png" id="33_wu3dr"]
+[ext_resource type="Texture2D" uid="uid://ct3jg0kfps85d" path="res://BlockTextures/lod_blocks/stone_lod.png" id="34_cyx1q"]
+[ext_resource type="Texture2D" uid="uid://d0bhwpk58hb1q" path="res://BlockTextures/lod_blocks/leaf_lod.png" id="36_jx0wj"]
+
+[sub_resource type="Theme" id="Theme_facbu"]
+MarginContainer/constants/margin_bottom = 16
+MarginContainer/constants/margin_left = 16
+MarginContainer/constants/margin_right = 16
+MarginContainer/constants/margin_top = 16
+
+[sub_resource type="Theme" id="Theme_h2yge"]
+MarginContainer/constants/margin_bottom = 10
+MarginContainer/constants/margin_left = 10
+MarginContainer/constants/margin_right = 10
+MarginContainer/constants/margin_top = 10
+
+[sub_resource type="Theme" id="Theme_b1qrp"]
+default_font_size = 18
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_h2yge"]
+
+[sub_resource type="Sky" id="Sky_1bvp3"]
+sky_material = SubResource("ProceduralSkyMaterial_h2yge")
+
+[sub_resource type="Environment" id="Environment_lquwl"]
+background_mode = 2
+sky = SubResource("Sky_1bvp3")
+
+[sub_resource type="Resource" id="Resource_jx0ag"]
+script = ExtResource("3_come4")
+Name = "Air"
+Species = 0
+MidTexture = ExtResource("2_b1qrp")
+
+[sub_resource type="Resource" id="Resource_acfbf"]
+script = ExtResource("3_come4")
+Name = "Dirt"
+Species = 4
+MidTexture = ExtResource("4_h8e4i")
+
+[sub_resource type="Resource" id="Resource_2jh7v"]
+script = ExtResource("3_come4")
+Name = "Grass"
+Species = 5
+MidTexture = ExtResource("5_4lmeg")
+BottomTexture = ExtResource("4_h8e4i")
+TopTexture = ExtResource("6_0cp0l")
+
+[sub_resource type="Resource" id="Resource_8qynj"]
+script = ExtResource("3_come4")
+Name = "Stone"
+Species = 2
+MidTexture = ExtResource("7_d2t1y")
+
+[sub_resource type="Resource" id="Resource_08gm7"]
+script = ExtResource("3_come4")
+Name = "Lava"
+Species = 1
+MidTexture = ExtResource("2_b1qrp")
+
+[sub_resource type="Resource" id="Resource_rrxkc"]
+script = ExtResource("3_come4")
+Name = "Test"
+Species = 3
+BottomTexture = ExtResource("9_0n3wm")
+TopTexture = ExtResource("13_0cbny")
+LeftTexture = ExtResource("11_wnkbs")
+RightTexture = ExtResource("12_f6a44")
+BackTexture = ExtResource("8_gngh3")
+FrontTexture = ExtResource("10_qnost")
+
+[sub_resource type="Resource" id="Resource_u2jqt"]
+script = ExtResource("3_come4")
+Name = "Emerald"
+Species = 10
+MidTexture = ExtResource("14_hrvbo")
+
+[sub_resource type="Resource" id="Resource_c1lq1"]
+script = ExtResource("3_come4")
+Name = "Check1"
+Species = 3
+MidTexture = ExtResource("15_uypp3")
+
+[sub_resource type="Resource" id="Resource_svbav"]
+script = ExtResource("3_come4")
+Name = "Check2"
+Species = 3
+MidTexture = ExtResource("16_blkrb")
+
+[sub_resource type="Resource" id="Resource_jetqs"]
+script = ExtResource("3_come4")
+Name = "Trunk"
+Species = 7
+MidTexture = ExtResource("18_6iyjs")
+BottomTexture = ExtResource("17_abqjc")
+TopTexture = ExtResource("17_abqjc")
+
+[sub_resource type="Resource" id="Resource_5cwg0"]
+script = ExtResource("3_come4")
+Name = "GoldOre"
+Species = 10
+MidTexture = ExtResource("19_4w656")
+
+[sub_resource type="Resource" id="Resource_psntt"]
+script = ExtResource("3_come4")
+Name = "MossyCobble1"
+Species = 2
+MidTexture = ExtResource("21_rnkwl")
+BottomTexture = ExtResource("20_e71vb")
+TopTexture = ExtResource("20_e71vb")
+
+[sub_resource type="Resource" id="Resource_8x358"]
+script = ExtResource("3_come4")
+Name = "MossyCobble2"
+Species = 2
+MidTexture = ExtResource("23_uit24")
+BottomTexture = ExtResource("22_vke2r")
+TopTexture = ExtResource("22_vke2r")
+
+[sub_resource type="Resource" id="Resource_22yoo"]
+script = ExtResource("3_come4")
+Name = "MossyCobble3"
+Species = 2
+MidTexture = ExtResource("21_rnkwl")
+BottomTexture = ExtResource("24_ruth0")
+TopTexture = ExtResource("24_ruth0")
+
+[sub_resource type="Resource" id="Resource_1shsb"]
+script = ExtResource("3_come4")
+Name = "MossyCobble4"
+Species = 2
+MidTexture = ExtResource("26_pjyto")
+BottomTexture = ExtResource("25_rm4vd")
+TopTexture = ExtResource("25_rm4vd")
+
+[sub_resource type="Resource" id="Resource_gn64w"]
+script = ExtResource("3_come4")
+Name = "LeafRed"
+Species = 8
+MidTexture = ExtResource("27_sm6fg")
+
+[sub_resource type="Resource" id="Resource_peibf"]
+script = ExtResource("3_come4")
+Name = "LeafYellow"
+Species = 8
+MidTexture = ExtResource("28_b17eg")
+
+[sub_resource type="Resource" id="Resource_8qjln"]
+script = ExtResource("3_come4")
+Name = "LeafOrange"
+Species = 8
+MidTexture = ExtResource("29_ntx8l")
+
+[sub_resource type="Resource" id="Resource_tleib"]
+script = ExtResource("3_come4")
+Name = "LeafGreen"
+Species = 8
+MidTexture = ExtResource("30_uatky")
+
+[sub_resource type="Resource" id="Resource_tot6o"]
+script = ExtResource("3_come4")
+Name = "LeafBlue"
+Species = 8
+MidTexture = ExtResource("31_rqtf5")
+
+[sub_resource type="Resource" id="Resource_oig7q"]
+script = ExtResource("3_come4")
+Name = "LeafGreenDark"
+Species = 8
+MidTexture = ExtResource("32_1vm84")
+
+[sub_resource type="Resource" id="Resource_kkkcx"]
+script = ExtResource("3_come4")
+Name = "LODDirt"
+Species = 3
+MidTexture = ExtResource("33_wu3dr")
+
+[sub_resource type="Resource" id="Resource_psxkl"]
+script = ExtResource("3_come4")
+Name = "LODStone"
+Species = 2
+MidTexture = ExtResource("34_cyx1q")
+
+[sub_resource type="Resource" id="Resource_y3aqf"]
+script = ExtResource("3_come4")
+Name = "LODGrass"
+Species = 3
+BottomTexture = ExtResource("9_0n3wm")
+TopTexture = ExtResource("13_0cbny")
+LeftTexture = ExtResource("11_wnkbs")
+RightTexture = ExtResource("12_f6a44")
+BackTexture = ExtResource("8_gngh3")
+FrontTexture = ExtResource("10_qnost")
+
+[sub_resource type="Resource" id="Resource_4hog5"]
+script = ExtResource("3_come4")
+Name = "LODLeaves"
+Species = 8
+MidTexture = ExtResource("36_jx0wj")
+
+[node name="Main" type="Node3D"]
+
+[node name="Control" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme = SubResource("Theme_facbu")
+
+[node name="CenterContainer" type="CenterContainer" parent="Control/MarginContainer"]
+layout_mode = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer"]
+custom_minimum_size = Vector2(1000, 0)
+layout_mode = 2
+
+[node name="PanelContainer2" type="PanelContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+theme = SubResource("Theme_h2yge")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer"]
+layout_mode = 2
+
+[node name="FPSLabel" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+theme = SubResource("Theme_b1qrp")
+text = "FPS: "
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+text = "Press ESC to toggle UI mode."
+
+[node name="Button" type="Button" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+focus_mode = 0
+text = "PRINT DEBUG VARIABLES"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="PanelContainer2" type="PanelContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2"]
+layout_mode = 2
+theme = SubResource("Theme_h2yge")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_h2yge")
+
+[node name="Label2" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+text = "CHUNK PARAMETERS"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Max World Height"
+
+[node name="MaxWorldHeight" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 500.0
+value = 250.0
+rounded = true
+allow_greater = true
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Ocean Height"
+
+[node name="OceanHeight" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+value = 10.0
+rounded = true
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "CaveNoiseScale"
+
+[node name="CaveNoiseScale" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1000.0
+value = 550.0
+rounded = true
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+text = "CaveThreshold"
+
+[node name="ChunkCaveThreshold" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -1.0
+max_value = 1.0
+step = 0.05
+value = 0.75
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer5"]
+layout_mode = 2
+text = "GenerateCaves"
+
+[node name="GenerateCaves" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer5"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+value = 1.0
+rounded = true
+
+[node name="HBoxContainer6" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer6"]
+layout_mode = 2
+text = "ForceFloor"
+
+[node name="ForceFloor" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer6"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+value = 1.0
+rounded = true
+
+[node name="PanelContainer" type="PanelContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+theme = SubResource("Theme_h2yge")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_h2yge")
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+text = "NOISE PARAMETERS"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="GainLabel" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+layout_mode = 2
+text = "Gain"
+
+[node name="Gain" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1.0
+step = 0.01
+value = 0.7
+allow_greater = true
+
+[node name="HBoxContainer2" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
+layout_mode = 2
+text = "Frequency"
+
+[node name="Frequency" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1000.0
+value = 700.0
+rounded = true
+allow_greater = true
+
+[node name="HBoxContainer3" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3"]
+layout_mode = 2
+text = "Lacunarity"
+
+[node name="Lacunarity" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 12.0
+step = 0.05
+value = 3.3
+
+[node name="HBoxContainer4" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer4"]
+layout_mode = 2
+text = "Persistence"
+
+[node name="Persistence" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer4"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 3.0
+step = 0.05
+value = 0.25
+
+[node name="HBoxContainer5" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer5"]
+layout_mode = 2
+text = "Octaves"
+
+[node name="Octaves" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer5"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 12.0
+value = 5.0
+rounded = true
+
+[node name="HBoxContainer6" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer6"]
+layout_mode = 2
+text = "CaveScale"
+
+[node name="CaveScale" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer6"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+max_value = 1000.0
+value = 550.0
+rounded = true
+
+[node name="HBoxContainer7" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer7"]
+layout_mode = 2
+text = "CaveThreshold"
+
+[node name="CaveThreshold" type="SpinBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer7"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+min_value = -1.0
+max_value = 1.0
+step = 0.05
+value = 0.75
+
+[node name="PanelContainer" type="PanelContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer"]
+layout_mode = 2
+theme = SubResource("Theme_h2yge")
+
+[node name="VBoxContainer2" type="VBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer"]
+layout_mode = 2
+
+[node name="YRenderLabel" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Y Render Distance"
+
+[node name="YRenderSlider" type="HSlider" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+min_value = 1.0
+max_value = 12.0
+value = 1.0
+rounded = true
+allow_greater = true
+tick_count = 11
+ticks_on_borders = true
+
+[node name="XZRenderLabel" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "XZ Render Distance"
+
+[node name="XZRenderSlider" type="HSlider" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
+unique_name_in_owner = true
+layout_mode = 2
+focus_mode = 0
+min_value = 3.0
+max_value = 32.0
+value = 3.0
+rounded = true
+allow_greater = true
+tick_count = 27
+
+[node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+focus_mode = 0
+text = "Generate Multi Chunks"
+
+[node name="Button2" type="Button" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
+layout_mode = 2
+focus_mode = 0
+text = "Generate Chunks Sequentially"
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_lquwl")
+
+[node name="BlockManager" parent="." instance=ExtResource("1_0xm2m")]
+Blocks = Array[Object]([SubResource("Resource_jx0ag"), SubResource("Resource_acfbf"), SubResource("Resource_2jh7v"), SubResource("Resource_8qynj"), SubResource("Resource_08gm7"), SubResource("Resource_rrxkc"), SubResource("Resource_u2jqt"), SubResource("Resource_c1lq1"), SubResource("Resource_svbav"), SubResource("Resource_jetqs"), SubResource("Resource_5cwg0"), SubResource("Resource_psntt"), SubResource("Resource_8x358"), SubResource("Resource_22yoo"), SubResource("Resource_1shsb"), SubResource("Resource_gn64w"), SubResource("Resource_peibf"), SubResource("Resource_8qjln"), SubResource("Resource_tleib"), SubResource("Resource_tot6o"), SubResource("Resource_oig7q"), SubResource("Resource_kkkcx"), SubResource("Resource_psxkl"), SubResource("Resource_y3aqf"), SubResource("Resource_4hog5")])
+
+[node name="ChunkManager" type="Node3D" parent="." node_paths=PackedStringArray("ChunkMesh")]
+script = ExtResource("2_h2yge")
+ChunkMesh = NodePath("MeshInstance3D")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="ChunkManager"]
+
+[node name="SimpleController" parent="." instance=ExtResource("1_ig7tw")]
+
+[connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/Button" to="ChunkManager" method="PrintDebugVariables"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/MaxWorldHeight" to="ChunkManager" method="ChunkValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer2/OceanHeight" to="ChunkManager" method="ChunkValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer3/CaveNoiseScale" to="ChunkManager" method="ChunkValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/ChunkCaveThreshold" to="ChunkManager" method="ChunkValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer5/GenerateCaves" to="ChunkManager" method="ChunkValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer6/ForceFloor" to="ChunkManager" method="ChunkValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Gain" to="ChunkManager" method="NoiseValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2/Frequency" to="ChunkManager" method="NoiseValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/Lacunarity" to="ChunkManager" method="NoiseValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer4/Persistence" to="ChunkManager" method="NoiseValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer5/Octaves" to="ChunkManager" method="NoiseValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer6/CaveScale" to="ChunkManager" method="NoiseValueChanged"]
+[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer7/CaveThreshold" to="ChunkManager" method="NoiseValueChanged"]
+[connection signal="drag_ended" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/YRenderSlider" to="ChunkManager" method="UpdateRenderDistance"]
+[connection signal="drag_ended" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/XZRenderSlider" to="ChunkManager" method="UpdateRenderDistance"]
+[connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/Button" to="ChunkManager" method="UpdateMeshesTest" binds= [false]]
+[connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/Button2" to="ChunkManager" method="UpdateMeshesTest" binds= [true]]

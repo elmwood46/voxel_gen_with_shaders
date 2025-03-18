@@ -1,0 +1,21 @@
+[gd_resource type="StandardMaterial3D" load_steps=6 format=3 uid="uid://dtqvsdgw877cg"]
+
+[ext_resource type="Texture2D" uid="uid://jxi11u8y15n" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_COLOR.jpg" id="1_xtl48"]
+[ext_resource type="Texture2D" uid="uid://7g5ad520aamb" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_OCC.jpg" id="2_jw2tv"]
+[ext_resource type="Texture2D" uid="uid://dqg7sc05wddg" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_DISPa.png" id="3_tcogj"]
+[ext_resource type="Texture2D" uid="uid://ckmcqse4x1kic" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_NORM.jpg" id="4_wbhv7"]
+[ext_resource type="Texture2D" uid="uid://b0uhyl5x3ejje" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_ROUGH.jpg" id="5_votf6"]
+
+[resource]
+albedo_texture = ExtResource("1_xtl48")
+roughness_texture = ExtResource("5_votf6")
+emission_enabled = true
+emission_texture = ExtResource("5_votf6")
+normal_enabled = true
+normal_texture = ExtResource("4_wbhv7")
+ao_texture = ExtResource("2_jw2tv")
+heightmap_scale = 16.0
+heightmap_deep_parallax = true
+heightmap_min_layers = 8
+heightmap_max_layers = 32
+heightmap_texture = ExtResource("3_tcogj")

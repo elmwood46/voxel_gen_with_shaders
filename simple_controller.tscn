@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://c34gjn8qgnneo"]
+
+[ext_resource type="Script" uid="uid://b5jpucad4bksr" path="res://SimpleController.cs" id="1_gcw81"]
+
+[node name="SimpleController" type="CharacterBody3D" node_paths=PackedStringArray("Camera")]
+script = ExtResource("1_gcw81")
+Camera = NodePath("Camera3D")
+MoveSpeed = 15.0
+MoveLerpFactor = 10.0
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.50642, 0)
+current = true

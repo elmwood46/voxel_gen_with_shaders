@@ -1,0 +1,204 @@
+[gd_scene load_steps=56 format=3 uid="uid://d1cs3wweth7a5"]
+
+[ext_resource type="Script" uid="uid://o3a50uk42xdt" path="res://BlockManager.cs" id="1_pi362"]
+[ext_resource type="Texture2D" uid="uid://lfcjwjt4uvta" path="res://BlockTextures/EMPTY_TEXTURE.png" id="2_lcj64"]
+[ext_resource type="Script" uid="uid://wuolt7vnkyjw" path="res://Block.cs" id="2_rvhry"]
+[ext_resource type="Texture2D" uid="uid://bvlycywksqrek" path="res://BlockTextures/dirt.png" id="3_54o36"]
+[ext_resource type="Texture2D" uid="uid://bkpj5lder3h1q" path="res://BlockTextures/GrassSide.png" id="5_ucuqg"]
+[ext_resource type="Texture2D" uid="uid://b5au74chlqttb" path="res://BlockTextures/GrassTop.png" id="6_vnd6d"]
+[ext_resource type="Texture2D" uid="uid://cboj7dieehlc7" path="res://BlockTextures/stone.png" id="7_204jl"]
+[ext_resource type="Texture2D" uid="uid://dmph41b5t1n4k" path="res://BlockTextures/DIR4.png" id="9_so25c"]
+[ext_resource type="Texture2D" uid="uid://qqm5veel8p5q" path="res://BlockTextures/DIR0.png" id="10_76xkx"]
+[ext_resource type="Texture2D" uid="uid://d1t5s7l5jsbji" path="res://BlockTextures/DIR5.png" id="11_3x3f3"]
+[ext_resource type="Texture2D" uid="uid://bl8yvwntdy1np" path="res://BlockTextures/DIR2.png" id="12_5nlwm"]
+[ext_resource type="Texture2D" uid="uid://bb3ojl1muux38" path="res://BlockTextures/DIR3.png" id="13_1mb2e"]
+[ext_resource type="Texture2D" uid="uid://8n4j3gjy3i45" path="res://BlockTextures/emerald_block (44).png" id="14_0dj8p"]
+[ext_resource type="Texture2D" uid="uid://cosa1rsx5mw38" path="res://BlockTextures/DIR1.png" id="14_eq03o"]
+[ext_resource type="Texture2D" uid="uid://crbe7ex127cio" path="res://BlockTextures/prismarine_bricks (7).png" id="15_meo0b"]
+[ext_resource type="Texture2D" uid="uid://151ahohl5cgo" path="res://BlockTextures/prismarine_dark (7).png" id="16_u4d5o"]
+[ext_resource type="Texture2D" uid="uid://c4spwl71x1h4u" path="res://BlockTextures/trunkBase.png" id="17_5jcga"]
+[ext_resource type="Texture2D" uid="uid://uyvm30m1rae0" path="res://BlockTextures/trunk.png" id="18_ecku7"]
+[ext_resource type="Texture2D" uid="uid://uk5enrojv8vn" path="res://BlockTextures/gold_ore (4).png" id="19_cts74"]
+[ext_resource type="Texture2D" uid="uid://bymmnewgso7pp" path="res://BlockTextures/cobblestone_mossy_top1.png" id="20_7d7g7"]
+[ext_resource type="Texture2D" uid="uid://dhbwpoh8kobto" path="res://BlockTextures/cobblestone_mossy (45).png" id="21_0iqil"]
+[ext_resource type="Texture2D" uid="uid://b04a0tgrb3rks" path="res://BlockTextures/cobblestone_mossy_top2.png" id="22_jccf0"]
+[ext_resource type="Texture2D" uid="uid://d1jw88jxh2w0u" path="res://BlockTextures/cobblestone_mossy (40).png" id="23_gq2fh"]
+[ext_resource type="Texture2D" uid="uid://ftdltua7l8fi" path="res://BlockTextures/cobblestone_mossy_top3.png" id="24_o2724"]
+[ext_resource type="Texture2D" uid="uid://dns8guer7vsjd" path="res://BlockTextures/cobblestone_mossy_top.png" id="25_x3fc8"]
+[ext_resource type="Texture2D" uid="uid://comunjkk6lsxx" path="res://BlockTextures/cobblestone_mossy (9).png" id="26_hw8y7"]
+[ext_resource type="Texture2D" uid="uid://da67tloawx4b4" path="res://BlockTextures/leavesredfast.png" id="27_83h3t"]
+[ext_resource type="Texture2D" uid="uid://cnrtnxdxxiovx" path="res://BlockTextures/leavesyellowfast.png" id="28_es0lu"]
+[ext_resource type="Texture2D" uid="uid://b0xajo4pno782" path="res://BlockTextures/leaves_OgreLair_solid.png" id="29_jj8y6"]
+[ext_resource type="Texture2D" uid="uid://cvct6jfj3bjxj" path="res://BlockTextures/leaves_jungle_opaque (34).png" id="30_kj0qu"]
+[ext_resource type="Texture2D" uid="uid://dvysuo0i058n0" path="res://BlockTextures/leaves_WyvernLair_solid.png" id="31_p2tff"]
+[ext_resource type="Texture2D" uid="uid://c2c2wedwuygsn" path="res://BlockTextures/leaves_spruce_opaque (14).png" id="32_hwrhx"]
+
+[sub_resource type="Resource" id="Resource_jx0ag"]
+script = ExtResource("2_rvhry")
+Name = "Air"
+Species = 0
+MidTexture = ExtResource("2_lcj64")
+
+[sub_resource type="Resource" id="Resource_acfbf"]
+script = ExtResource("2_rvhry")
+Name = "Dirt"
+Species = 4
+MidTexture = ExtResource("3_54o36")
+
+[sub_resource type="Resource" id="Resource_2jh7v"]
+script = ExtResource("2_rvhry")
+Name = "Grass"
+Species = 5
+MidTexture = ExtResource("5_ucuqg")
+BottomTexture = ExtResource("3_54o36")
+TopTexture = ExtResource("6_vnd6d")
+
+[sub_resource type="Resource" id="Resource_8qynj"]
+script = ExtResource("2_rvhry")
+Name = "Stone"
+Species = 2
+MidTexture = ExtResource("7_204jl")
+
+[sub_resource type="Resource" id="Resource_08gm7"]
+script = ExtResource("2_rvhry")
+Name = "Lava"
+Species = 1
+MidTexture = ExtResource("2_lcj64")
+
+[sub_resource type="Resource" id="Resource_rrxkc"]
+script = ExtResource("2_rvhry")
+Name = "Test"
+Species = 3
+BottomTexture = ExtResource("10_76xkx")
+TopTexture = ExtResource("14_eq03o")
+LeftTexture = ExtResource("12_5nlwm")
+RightTexture = ExtResource("13_1mb2e")
+BackTexture = ExtResource("9_so25c")
+FrontTexture = ExtResource("11_3x3f3")
+
+[sub_resource type="Resource" id="Resource_u2jqt"]
+script = ExtResource("2_rvhry")
+Name = "Emerald"
+Species = 10
+MidTexture = ExtResource("14_0dj8p")
+
+[sub_resource type="Resource" id="Resource_c1lq1"]
+script = ExtResource("2_rvhry")
+Name = "Check1"
+Species = 3
+MidTexture = ExtResource("15_meo0b")
+
+[sub_resource type="Resource" id="Resource_svbav"]
+script = ExtResource("2_rvhry")
+Name = "Check2"
+Species = 3
+MidTexture = ExtResource("16_u4d5o")
+
+[sub_resource type="Resource" id="Resource_jetqs"]
+script = ExtResource("2_rvhry")
+Name = "Trunk"
+Species = 7
+MidTexture = ExtResource("18_ecku7")
+BottomTexture = ExtResource("17_5jcga")
+TopTexture = ExtResource("17_5jcga")
+
+[sub_resource type="Resource" id="Resource_5cwg0"]
+script = ExtResource("2_rvhry")
+Name = "GoldOre"
+Species = 10
+MidTexture = ExtResource("19_cts74")
+
+[sub_resource type="Resource" id="Resource_psntt"]
+script = ExtResource("2_rvhry")
+Name = "MossyCobble1"
+Species = 2
+MidTexture = ExtResource("21_0iqil")
+BottomTexture = ExtResource("20_7d7g7")
+TopTexture = ExtResource("20_7d7g7")
+
+[sub_resource type="Resource" id="Resource_8x358"]
+script = ExtResource("2_rvhry")
+Name = "MossyCobble2"
+Species = 2
+MidTexture = ExtResource("23_gq2fh")
+BottomTexture = ExtResource("22_jccf0")
+TopTexture = ExtResource("22_jccf0")
+
+[sub_resource type="Resource" id="Resource_22yoo"]
+script = ExtResource("2_rvhry")
+Name = "MossyCobble3"
+Species = 2
+MidTexture = ExtResource("21_0iqil")
+BottomTexture = ExtResource("24_o2724")
+TopTexture = ExtResource("24_o2724")
+
+[sub_resource type="Resource" id="Resource_1shsb"]
+script = ExtResource("2_rvhry")
+Name = "MossyCobble4"
+Species = 2
+MidTexture = ExtResource("26_hw8y7")
+BottomTexture = ExtResource("25_x3fc8")
+TopTexture = ExtResource("25_x3fc8")
+
+[sub_resource type="Resource" id="Resource_gn64w"]
+script = ExtResource("2_rvhry")
+Name = "LeafRed"
+Species = 8
+MidTexture = ExtResource("27_83h3t")
+
+[sub_resource type="Resource" id="Resource_peibf"]
+script = ExtResource("2_rvhry")
+Name = "LeafYellow"
+Species = 8
+MidTexture = ExtResource("28_es0lu")
+
+[sub_resource type="Resource" id="Resource_8qjln"]
+script = ExtResource("2_rvhry")
+Name = "LeafOrange"
+Species = 8
+MidTexture = ExtResource("29_jj8y6")
+
+[sub_resource type="Resource" id="Resource_tleib"]
+script = ExtResource("2_rvhry")
+Name = "LeafGreen"
+Species = 8
+MidTexture = ExtResource("30_kj0qu")
+
+[sub_resource type="Resource" id="Resource_tot6o"]
+script = ExtResource("2_rvhry")
+Name = "LeafBlue"
+Species = 8
+MidTexture = ExtResource("31_p2tff")
+
+[sub_resource type="Resource" id="Resource_oig7q"]
+script = ExtResource("2_rvhry")
+Name = "LeafGreenDark"
+Species = 8
+MidTexture = ExtResource("32_hwrhx")
+
+[sub_resource type="Resource" id="Resource_r4lly"]
+script = ExtResource("2_rvhry")
+Name = "SlopedTest"
+Species = 3
+BottomTexture = ExtResource("10_76xkx")
+TopTexture = ExtResource("14_eq03o")
+LeftTexture = ExtResource("12_5nlwm")
+RightTexture = ExtResource("13_1mb2e")
+BackTexture = ExtResource("9_so25c")
+FrontTexture = ExtResource("11_3x3f3")
+
+[sub_resource type="Resource" id="Resource_pinkb"]
+script = ExtResource("2_rvhry")
+Name = "AngleSlopedTest"
+Species = 3
+BottomTexture = ExtResource("10_76xkx")
+TopTexture = ExtResource("14_eq03o")
+LeftTexture = ExtResource("12_5nlwm")
+RightTexture = ExtResource("13_1mb2e")
+BackTexture = ExtResource("9_so25c")
+FrontTexture = ExtResource("11_3x3f3")
+
+[node name="BlockManager" type="Node"]
+script = ExtResource("1_pi362")
+Blocks = Array[Object]([SubResource("Resource_jx0ag"), SubResource("Resource_acfbf"), SubResource("Resource_2jh7v"), SubResource("Resource_8qynj"), SubResource("Resource_08gm7"), SubResource("Resource_rrxkc"), SubResource("Resource_u2jqt"), SubResource("Resource_c1lq1"), SubResource("Resource_svbav"), SubResource("Resource_jetqs"), SubResource("Resource_5cwg0"), SubResource("Resource_psntt"), SubResource("Resource_8x358"), SubResource("Resource_22yoo"), SubResource("Resource_1shsb"), SubResource("Resource_gn64w"), SubResource("Resource_peibf"), SubResource("Resource_8qjln"), SubResource("Resource_tleib"), SubResource("Resource_tot6o"), SubResource("Resource_oig7q"), SubResource("Resource_r4lly"), SubResource("Resource_pinkb")])
+metadata/_edit_pinned_properties_ = [&"Blocks"]

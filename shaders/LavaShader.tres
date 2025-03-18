@@ -1,0 +1,20 @@
+[gd_resource type="ShaderMaterial" load_steps=4 format=3 uid="uid://cc8jelgps50k7"]
+
+[ext_resource type="Shader" uid="uid://bbhg30rteryg" path="res://shaders/LavaShader.gdshader" id="1_34xfh"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_4cy4v"]
+frequency = 0.002
+fractal_type = 3
+domain_warp_fractal_octaves = 10
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_kip8t"]
+in_3d_space = true
+noise = SubResource("FastNoiseLite_4cy4v")
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_34xfh")
+shader_parameter/timeScaleFactor = 0.04
+shader_parameter/noise_texture = SubResource("NoiseTexture2D_kip8t")
+shader_parameter/emission_color = Color(1, 0.388235, 0.0117647, 1)
+shader_parameter/emission_strength = 2.0

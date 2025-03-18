@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://dbhlqtttq8aj3"
+path="res://.godot/imported/compute_noise.glsl-30f9039bf1f147db3d400ff039767680.res"
+
+[deps]
+
+source_file="res://compute_shaders/compute_noise.glsl"
+dest_files=["res://.godot/imported/compute_noise.glsl-30f9039bf1f147db3d400ff039767680.res"]
+
+[params]
+

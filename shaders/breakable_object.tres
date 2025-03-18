@@ -1,0 +1,34 @@
+[gd_resource type="ShaderMaterial" load_steps=11 format=3 uid="uid://d3mp4cskby312"]
+
+[ext_resource type="Shader" path="res://shaders/breakable_object.gdshader" id="1_k87xt"]
+[ext_resource type="Texture2D" uid="uid://bcun8px0nhs7i" path="res://shaders/acid_damage_curve.tres" id="2_4d70q"]
+[ext_resource type="Texture2D" uid="uid://c4f2n4wiqjnw" path="res://BlockTextures/textureExperiment/cracks_tex.bmp" id="3_l2ba2"]
+[ext_resource type="Texture2D" uid="uid://dqg7sc05wddg" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_DISPa.png" id="4_a8veu"]
+[ext_resource type="Texture2D" uid="uid://d26gi0ri8ufgg" path="res://shaders/fire_damage_curve.tres" id="5_xsbcs"]
+[ext_resource type="Texture2D" uid="uid://xvl8rsywq8k4" path="res://shaders/pulse_damage_curve.tres" id="6_a122k"]
+[ext_resource type="Texture2D" uid="uid://c8rdx8g7ly41k" path="res://shaders/flamenoise.tres" id="6_vlk73"]
+[ext_resource type="Texture2D" uid="uid://ckmcqse4x1kic" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_NORM.jpg" id="7_158on"]
+[ext_resource type="Texture2D" uid="uid://b0uhyl5x3ejje" path="res://BlockTextures/textureExperiment/Ground_Dirt_006_ROUGH.jpg" id="8_8aifi"]
+[ext_resource type="Texture2D" uid="uid://bdoda4hoe0b1m" path="res://shaders/flame_spotnoise.tres" id="9_bsuff"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_k87xt")
+shader_parameter/_bordercol = Color(1, 1, 1, 1)
+shader_parameter/_emissioncol = Color(0.96, 0.35, 0, 1)
+shader_parameter/_burncol = Color(0.2, 0.09, 0.03, 1)
+shader_parameter/_acidcol = Color(0, 0.94902, 0, 1)
+shader_parameter/_acidedge = Color(0.0509804, 0.698039, 0.0470588, 1)
+shader_parameter/_damage_data = null
+shader_parameter/_fuse_pulse_colour = Color(1, 1, 1, 1)
+shader_parameter/_fuse_ratio = 0.0
+shader_parameter/_fuse_is_active = false
+shader_parameter/_fuse_pulse_curve = ExtResource("6_a122k")
+shader_parameter/_displacement = ExtResource("4_a8veu")
+shader_parameter/_roughness = ExtResource("8_8aifi")
+shader_parameter/_normalmap = ExtResource("7_158on")
+shader_parameter/_cracks_texture = ExtResource("3_l2ba2")
+shader_parameter/_noise = ExtResource("6_vlk73")
+shader_parameter/_spot_noise = ExtResource("9_bsuff")
+shader_parameter/_acidcurvetex = ExtResource("2_4d70q")
+shader_parameter/_firecurvetex = ExtResource("5_xsbcs")
