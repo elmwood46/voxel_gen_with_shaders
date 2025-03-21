@@ -64,6 +64,7 @@ public partial class BlockManager : Node
 	public static int StoneBlockId {get; private set;}
 	public static int GrassBlockId {get; private set;}
 	public static int DirtBlockId {get; private set;}
+	public static int[] AllBlocksTextureArrayPositions {get; private set;}
 
 	// shader defaults
 	private static readonly NoiseTexture2D noise = GD.Load("res://shaders/flamenoise.tres") as NoiseTexture2D;
@@ -134,6 +135,7 @@ public partial class BlockManager : Node
 			if (Blocks[i].Name == "Dirt") DirtBlockId = i;
 			Instance.Blocks[i].BakedTextureArrayPositions = GetBlockTextureArrayPositions(i);
 		}
+		AllBlocksTextureArrayPositions = [.. Blocks.SelectMany(block => block.BakedTextureArrayPositions)];
 
 		// setup shader defaults
 		ChunkMaterial = ResourceLoader.Load("res://shaders/chunk_uv_shader.tres") as ShaderMaterial;

@@ -543,11 +543,12 @@ unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 min_value = 1.0
-max_value = 12.0
+max_value = 13.0
+step = 2.0
 value = 1.0
 rounded = true
 allow_greater = true
-tick_count = 11
+tick_count = 7
 ticks_on_borders = true
 
 [node name="XZRenderLabel" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
@@ -560,19 +561,30 @@ unique_name_in_owner = true
 layout_mode = 2
 focus_mode = 0
 min_value = 3.0
-max_value = 32.0
+max_value = 33.0
+step = 2.0
 value = 3.0
 rounded = true
 allow_greater = true
-tick_count = 27
+tick_count = 16
 
 [node name="Label" type="Label" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
 layout_mode = 2
 
-[node name="Button" type="Button" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
+[node name="HBoxContainer" type="HBoxContainer" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
 layout_mode = 2
+
+[node name="Button" type="Button" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
 focus_mode = 0
 text = "Generate Multi Chunks"
+
+[node name="MeshOnGpu" type="CheckBox" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/HBoxContainer"]
+layout_mode = 2
+focus_mode = 0
+button_pressed = true
+text = "Mesh on GPU"
 
 [node name="Button2" type="Button" parent="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2"]
 layout_mode = 2
@@ -581,6 +593,9 @@ text = "Generate Chunks Sequentially"
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = SubResource("Environment_lquwl")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
+transform = Transform3D(1, 0, 0, 0, 0.530526, 0.847669, 0, -0.847669, 0.530526, 0, 0, 0)
 
 [node name="BlockManager" parent="." instance=ExtResource("1_0xm2m")]
 Blocks = Array[Object]([SubResource("Resource_jx0ag"), SubResource("Resource_acfbf"), SubResource("Resource_2jh7v"), SubResource("Resource_8qynj"), SubResource("Resource_08gm7"), SubResource("Resource_rrxkc"), SubResource("Resource_u2jqt"), SubResource("Resource_c1lq1"), SubResource("Resource_svbav"), SubResource("Resource_jetqs"), SubResource("Resource_5cwg0"), SubResource("Resource_psntt"), SubResource("Resource_8x358"), SubResource("Resource_22yoo"), SubResource("Resource_1shsb"), SubResource("Resource_gn64w"), SubResource("Resource_peibf"), SubResource("Resource_8qjln"), SubResource("Resource_tleib"), SubResource("Resource_tot6o"), SubResource("Resource_oig7q"), SubResource("Resource_kkkcx"), SubResource("Resource_psxkl"), SubResource("Resource_y3aqf"), SubResource("Resource_4hog5")])
@@ -609,5 +624,6 @@ ChunkMesh = NodePath("MeshInstance3D")
 [connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer7/CaveThreshold" to="ChunkManager" method="NoiseValueChanged"]
 [connection signal="drag_ended" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/YRenderSlider" to="ChunkManager" method="UpdateRenderDistance"]
 [connection signal="drag_ended" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/XZRenderSlider" to="ChunkManager" method="UpdateRenderDistance"]
-[connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/Button" to="ChunkManager" method="UpdateMeshesTest" binds= [false]]
+[connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/HBoxContainer/Button" to="ChunkManager" method="UpdateMeshesTest" binds= [false]]
+[connection signal="toggled" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/HBoxContainer/MeshOnGpu" to="ChunkManager" method="ToggledGpuMeshing"]
 [connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/Button2" to="ChunkManager" method="UpdateMeshesTest" binds= [true]]

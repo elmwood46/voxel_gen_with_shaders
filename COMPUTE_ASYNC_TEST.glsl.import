@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://brpdxsg1xgjla"
+path="res://.godot/imported/COMPUTE_ASYNC_TEST.glsl-6d16fa54656921f416b410be052fa92e.res"
+
+[deps]
+
+source_file="res://COMPUTE_ASYNC_TEST.glsl"
+dest_files=["res://.godot/imported/COMPUTE_ASYNC_TEST.glsl-6d16fa54656921f416b410be052fa92e.res"]
+
+[params]
+

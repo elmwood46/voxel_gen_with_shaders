@@ -7,8 +7,6 @@ using System.Numerics;
 
 public partial class ChunkManager : Node3D
 {
-    public static readonly Vector3I Dimensions = new(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE);
-    const int SUBCHUNKS = 1;
     // greedy chunk mesh both meshes the chunk, and also adds neighbouring blocks to the chunk in the block cache
     #region GreedyChunkMesh
     public static void GreedyChunkMesh(Dictionary<int, Dictionary<int, UInt32[]>>[] data, Vector3I chunk_index, int subchunk)

@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Numerics;
+using System.Threading.Tasks;
 
 public enum SlopeType {
     None=0,
@@ -45,6 +46,8 @@ public partial class ChunkManager : Node3D
     public const int CSP = CHUNK_SIZE + 2;
     public const int CSP2 = CSP * CSP;
     public const int CSP3 = CSP2 * CSP;
+    public static readonly Vector3I Dimensions = new(CHUNK_SIZE, CHUNK_SIZE, CHUNK_SIZE);
+    const int SUBCHUNKS = 1;
 	public int RenderDistance = 5;
 	public int YRenderDistance = 1;
     const float INVSQRT2 = 0.70710678118f;
@@ -129,55 +132,67 @@ public partial class ChunkManager : Node3D
 
     public void UpdateRenderDistance(bool slider_value_changed)
     {
-        if (!slider_value_changed) return;
-        var xz_slider = GetNode<Slider>("%XZRenderSlider");
-        var y_slider = GetNode<Slider>("%YRenderSlider");
-        var xz_label = GetNode<Label>("%XZRenderLabel");
-        var y_label = GetNode<Label>("%YRenderLabel");
-        RenderDistance = Mathf.FloorToInt(xz_slider.Value);
-        YRenderDistance = Mathf.FloorToInt(y_slider.Value);
-        y_label.Text = $"Y Render Distance: {YRenderDistance}";
-        xz_label.Text = $"XZ Render Distance: {RenderDistance}";
+        Callable.From(()=>{
+            if (!slider_value_changed) return;
+            var xz_slider = GetNode<Slider>("%XZRenderSlider");
+            var y_slider = GetNode<Slider>("%YRenderSlider");
+            var xz_label = GetNode<Label>("%XZRenderLabel");
+            var y_label = GetNode<Label>("%YRenderLabel");
+            RenderDistance = Mathf.FloorToInt(xz_slider.Value);
+            YRenderDistance = Mathf.FloorToInt(y_slider.Value);
+            y_label.Text = $"Y Render Distance: {YRenderDistance}";
+            xz_label.Text = $"XZ Render Distance: {RenderDistance}";
+        }).CallDeferred();
     }
 
     public void NoiseValueChanged(float value)
     {
-        var gain = GetNode<SpinBox>("%Gain");
-        var frequency = GetNode<SpinBox>("%Frequency");
-        var lacun = GetNode<SpinBox>("%Lacunarity");
-        var persistence = GetNode<SpinBox>("%Persistence");
-        var octaves = GetNode<SpinBox>("%Octaves");
-        var cave_scale = GetNode<SpinBox>("%CaveScale");
-        var cave_thresh = GetNode<SpinBox>("%CaveThreshold");
+        Callable.From(()=>{
+            var gain = GetNode<SpinBox>("%Gain");
+            var frequency = GetNode<SpinBox>("%Frequency");
+            var lacun = GetNode<SpinBox>("%Lacunarity");
+            var persistence = GetNode<SpinBox>("%Persistence");
+            var octaves = GetNode<SpinBox>("%Octaves");
+            var cave_scale = GetNode<SpinBox>("%CaveScale");
+            var cave_thresh = GetNode<SpinBox>("%CaveThreshold");
 
-        var noise_layer = new NoiseLayer()
-        {
-            Gain = (float)gain.Value,
-            Frequency = (float)frequency.Value,
-            Lacunarity = (float)lacun.Value,
-            Persistence = (float)persistence.Value,
-            Octaves = (int)octaves.Value,
-            CaveScale = (float)cave_scale.Value,
-            CaveThreshold = (float)cave_thresh.Value
-        };
+            var noise_layer = new NoiseLayer()
+            {
+                Gain = (float)gain.Value,
+                Frequency = (float)frequency.Value,
+                Lacunarity = (float)lacun.Value,
+                Persistence = (float)persistence.Value,
+                Octaves = (int)octaves.Value,
+                CaveScale = (float)cave_scale.Value,
+                CaveThreshold = (float)cave_thresh.Value
+            };
 
-        ComputeChunk.SetNoiseLayer(0, noise_layer);
+            ComputeChunk.SetNoiseLayer(0, noise_layer);
+        }).CallDeferred();
     }
 
     public void ChunkValueChanged(float value)
     {
-        var max_world = GetNode<SpinBox>("%MaxWorldHeight");
-        var ocean_height = GetNode<SpinBox>("%OceanHeight");
-        var cave_scale = GetNode<SpinBox>("%CaveNoiseScale");
-        var cave_thresh = GetNode<SpinBox>("%ChunkCaveThreshold");
-        var gen_caves = GetNode<SpinBox>("%GenerateCaves");
-        var force_floor = GetNode<SpinBox>("%ForceFloor");
-        ComputeChunk.OceanHeight = (int)ocean_height.Value;
-        ComputeChunk.MaxWorldHeight = (int)max_world.Value;
-        ComputeChunk.CaveNoiseScale = (float)cave_scale.Value;
-        ComputeChunk.CaveThreshold = (float)cave_thresh.Value;
-        ComputeChunk.GenerateCaves = gen_caves.Value == 1.0;
-        ComputeChunk.ForceFloor = force_floor.Value == 1.0;
+        Callable.From(()=>{
+            var max_world = GetNode<SpinBox>("%MaxWorldHeight");
+            var ocean_height = GetNode<SpinBox>("%OceanHeight");
+            var cave_scale = GetNode<SpinBox>("%CaveNoiseScale");
+            var cave_thresh = GetNode<SpinBox>("%ChunkCaveThreshold");
+            var gen_caves = GetNode<SpinBox>("%GenerateCaves");
+            var force_floor = GetNode<SpinBox>("%ForceFloor");
+            ComputeChunk.OceanHeight = (int)ocean_height.Value;
+            ComputeChunk.MaxWorldHeight = (int)max_world.Value;
+            ComputeChunk.CaveNoiseScale = (float)cave_scale.Value;
+            ComputeChunk.CaveThreshold = (float)cave_thresh.Value;
+            ComputeChunk.GenerateCaves = gen_caves.Value == 1.0;
+            ComputeChunk.ForceFloor = force_floor.Value == 1.0;
+        }).CallDeferred();
+    }
+
+    public static bool MeshOnGpu = true;
+    public void ToggledGpuMeshing(bool value)
+    {
+        MeshOnGpu = value;
     }
 
     public override void _PhysicsProcess(double delta)
@@ -198,20 +213,20 @@ public partial class ChunkManager : Node3D
                 chunk_positions.Add(pos);
             }
         }
-
+        GD.Print("_____________________________________________");
         if (sequential)
         {
             ComputeChunk.GenerateMultiChunksSequentially(chunk_positions);
+            var stopwatch = Stopwatch.StartNew();
+            UpdateMeshCacheData();
+            stopwatch.Stop();
+            GD.Print($"UpdateMeshCacheData time elapsed: {stopwatch.ElapsedMilliseconds} ms");
         }
         else
         {
-            ComputeChunk.GenerateMultiChunks(chunk_positions);
+            ComputeChunk.GenerateMultiChunks(chunk_positions,MeshOnGpu);
         }
-
-        var stopwatch = Stopwatch.StartNew();
-        UpdateMeshCacheData();
-        stopwatch.Stop();
-        GD.Print($"UpdateMeshCacheData time elapsed: {stopwatch.ElapsedMilliseconds} ms");
+        GD.Print("_____________________________________________\n");
     }
 
     // free the rendering device when closing the scene
@@ -220,19 +235,29 @@ public partial class ChunkManager : Node3D
         ComputeChunk.FreeRenderingDevice();
     }
 
-    public static void UpdateMeshCacheData()
+    public async static void UpdateMeshCacheData()
     {
-        foreach (var (meshpos, chunk) in MESHCACHE)
+        var stopwatch = Stopwatch.StartNew();
+        var task_list = new List<Task>();
+        foreach (var (meshpos, chunk)  in MESHCACHE)
         {
-            var pos = meshpos;
-
+            task_list.Add(Task.Run(() => {
             // do multithreaded greedy meshing of LOD meshes
-            var new_arraymesh = BuildChunkMesh(pos);
-            var xform = new Transform3D(Basis.Identity, (Godot.Vector3)pos*CHUNK_SIZE);
+                var new_arraymesh = BuildChunkMesh(meshpos);
+                var xform = new Transform3D(Basis.Identity, (Godot.Vector3)meshpos*CHUNK_SIZE);
+                var trimesh_shape = new_arraymesh.CreateTrimeshShape();
 
-            chunk.MeshInstance.Mesh = new_arraymesh;
-            chunk.CollisionShape.Shape = new_arraymesh.CreateTrimeshShape();
-            chunk.Transform = xform;
+                Callable.From(()=>{
+                    chunk.MeshInstance.Mesh = new_arraymesh;
+                    chunk.CollisionShape.Shape = trimesh_shape;
+                    chunk.Transform = xform;
+                }).CallDeferred();
+                return Task.CompletedTask;
+            }));
         }
+        await Task.WhenAll(task_list);
+        stopwatch.Stop();
+        GD.Print($"UpdateMeshCacheData time elapsed: {stopwatch.ElapsedMilliseconds} ms");
+        return;
     }
 }

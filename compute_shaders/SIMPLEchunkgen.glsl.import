@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://txd6wvu2emso"
+path="res://.godot/imported/SIMPLEchunkgen.glsl-f029ade52bc3615ce3689d684c61af53.res"
+
+[deps]
+
+source_file="res://compute_shaders/SIMPLEchunkgen.glsl"
+dest_files=["res://.godot/imported/SIMPLEchunkgen.glsl-f029ade52bc3615ce3689d684c61af53.res"]
+
+[params]
+
