@@ -12,22 +12,22 @@ public partial class ComputeManager : Node
     private static Rid _voxel_gen_shader;
     private static Rid _mesh_gen_shader;
 
-    private static readonly List<MeshBuffer> _allMeshComputeBuffers = [];
-    private static readonly Queue<MeshBuffer> _availableMeshComputeBuffers = new();
-    private static readonly List<VoxelBuffer> _allVoxelComputeBuffers = [];
-    private static readonly Queue<VoxelBuffer> _availableVoxelComputeBuffers = new();
+    // private static readonly List<MeshBuffer> _allMeshComputeBuffers = [];
+    // private static readonly Queue<MeshBuffer> _availableMeshComputeBuffers = new();
+    // private static readonly List<VoxelBuffer> _allVoxelComputeBuffers = [];
+    // private static readonly Queue<VoxelBuffer> _availableVoxelComputeBuffers = new();
 
     private uint _workgroup_size = ChunkManager.CSP / 8;
-    private uint _meshing_workgroup_size = ChunkManager.CHUNK_SIZE / 6;
-    public int _numberMeshBuffers = 0;
+    // private uint _meshing_workgroup_size = ChunkManager.CHUNK_SIZE / 6;
+    // public int _numberMeshBuffers = 0;
 
-    private static Rid _noiseLayerParamsBuffer;
-    private byte[] _noiseLayerParamsBufferData;
-    private static Rid _chunkParamsBuffer;
-    private byte[] _chunkParamsBufferData;
+    // private static Rid _noiseLayerParamsBuffer;
+    // private byte[] _noiseLayerParamsBufferData;
+    // private static Rid _chunkParamsBuffer;
+    // private byte[] _chunkParamsBufferData;
 
     [ExportCategory("Chunk Gen Settings")]
-    [Export(PropertyHint.Range, "1,32,")] public int NumComputeBuffers = 18;
+    // [Export(PropertyHint.Range, "1,32,")] public int NumComputeBuffers = 18;
     [Export] public ChunkGenParamsResource ChunkGenParams {get;set;} = new ChunkGenParamsResource();
 
     [ExportCategory("Noise Settings")]
@@ -39,66 +39,83 @@ public partial class ComputeManager : Node
     public override void _Ready()
     {
         Instance = this;
-        _voxel_gen_shader = LocalRenderingDevice.ShaderCreateFromSpirV(_vox_shader_file.GetSpirV());
-        _mesh_gen_shader = LocalRenderingDevice.ShaderCreateFromSpirV(_mesh_shader_file.GetSpirV());
+        // _voxel_gen_shader = LocalRenderingDevice.ShaderCreateFromSpirV(_vox_shader_file.GetSpirV());
+        // _mesh_gen_shader = LocalRenderingDevice.ShaderCreateFromSpirV(_mesh_shader_file.GetSpirV());
         
-        Initialize(NumComputeBuffers);
+        // Initialize(NumComputeBuffers);
     }
 
     public void Initialize(int count = 18)
     {
         
-        // add noise layer data to buffer
-        var noise_layer_struct_size = Marshal.SizeOf<NoiseLayerStruct>();
-        _noiseLayerParamsBufferData = new byte[noise_layer_struct_size*NoiseLayers.Count];
-        var noise_layer_array = new NoiseLayerStruct[NoiseLayers.Count];
-        for (var i=0; i < noise_layer_array.Length; i++) noise_layer_array[i] = new NoiseLayerStruct(NoiseLayers[i]);
-        var noise_layer_array_bytes = MemoryMarshal.AsBytes<NoiseLayerStruct>(noise_layer_array).ToArray();
-        noise_layer_array_bytes.CopyTo(_noiseLayerParamsBufferData.AsSpan());
-        _noiseLayerParamsBuffer = LocalRenderingDevice.StorageBufferCreate((uint)_noiseLayerParamsBufferData.Length, _noiseLayerParamsBufferData);
+        // // add noise layer data to buffer
+        // var noise_layer_struct_size = Marshal.SizeOf<NoiseLayerStruct>();
+        // _noiseLayerParamsBufferData = new byte[noise_layer_struct_size*NoiseLayers.Count];
+        // var noise_layer_array = new NoiseLayerStruct[NoiseLayers.Count];
+        // for (var i=0; i < noise_layer_array.Length; i++) noise_layer_array[i] = new NoiseLayerStruct(NoiseLayers[i]);
+        // var noise_layer_array_bytes = MemoryMarshal.AsBytes<NoiseLayerStruct>(noise_layer_array).ToArray();
+        // noise_layer_array_bytes.CopyTo(_noiseLayerParamsBufferData.AsSpan());
+        // _noiseLayerParamsBuffer = LocalRenderingDevice.StorageBufferCreate((uint)_noiseLayerParamsBufferData.Length, _noiseLayerParamsBufferData);
 
-        _chunkParamsBufferData = new byte[Marshal.SizeOf<ChunkParamsStruct>()];
-        var chunk_params_bytes = MemoryMarshal.AsBytes([new ChunkParamsStruct(ChunkGenParams)]);
-        chunk_params_bytes.CopyTo(_chunkParamsBufferData);
-        _chunkParamsBuffer = LocalRenderingDevice.StorageBufferCreate((uint)_chunkParamsBufferData.Length, _chunkParamsBufferData);
+        // _chunkParamsBufferData = new byte[Marshal.SizeOf<ChunkParamsStruct>()];
+        // var chunk_params_bytes = MemoryMarshal.AsBytes([new ChunkParamsStruct(ChunkGenParams)]);
+        // chunk_params_bytes.CopyTo(_chunkParamsBufferData);
+        // _chunkParamsBuffer = LocalRenderingDevice.StorageBufferCreate((uint)_chunkParamsBufferData.Length, _chunkParamsBufferData);
 
         for (int i = 0; i < count; i++)
         {
-            CreateNewComputeBuffer("voxel", true);
-            CreateNewComputeBuffer("mesh", true);
+            //CreateNewComputeBuffer("voxel", true);
+            //CreateNewComputeBuffer("mesh", true);
         }
     }
     
     public void GenerateVoxelData(Chunk chunk, Vector3I chunk_position)
     {
-
-        VoxelBuffer vox_buffer = (VoxelBuffer)GetBuffer("voxel");
-        vox_buffer.ClearAllBufferData();
-        
-        var vox_uniform = BufferToUniform(vox_buffer.VoxelBufferRid, RenderingDevice.UniformType.StorageBuffer, 0);
-
-        var _chunk_pos_bytes = MemoryMarshal.AsBytes([chunk_position]).ToArray();
-        var _chunk_pos_buffer_rid = LocalRenderingDevice.StorageBufferCreate((uint)_chunk_pos_bytes.Length, _chunk_pos_bytes);
-        var _chunk_pos_uniform = BufferToUniform(_chunk_pos_buffer_rid, RenderingDevice.UniformType.StorageBuffer, 1);
-
-        var params_uniform = BufferToUniform(_chunkParamsBuffer, RenderingDevice.UniformType.StorageBuffer, 2);
-        var noise_uniform = BufferToUniform(_noiseLayerParamsBuffer, RenderingDevice.UniformType.StorageBuffer, 3);
-
-        var _bindings = new Godot.Collections.Array<RDUniform> { vox_uniform, _chunk_pos_uniform, params_uniform, noise_uniform};
-
-        var _uniform_set = LocalRenderingDevice.UniformSetCreate(_bindings, _voxel_gen_shader, 0);
-
-        var _compute_pipeline = LocalRenderingDevice.ComputePipelineCreate(_voxel_gen_shader);
-        var _compute_list = LocalRenderingDevice.ComputeListBegin();
-        LocalRenderingDevice.ComputeListBindComputePipeline(_compute_list, _compute_pipeline);
-        LocalRenderingDevice.ComputeListBindUniformSet(_compute_list, _uniform_set, 0);
-        LocalRenderingDevice.ComputeListDispatch(_compute_list, _workgroup_size, _workgroup_size, _workgroup_size);
-        LocalRenderingDevice.ComputeListEnd();
         RenderingServer.CallOnRenderThread(Callable.From(() => {
-            LocalRenderingDevice.Submit();
-            LocalRenderingDevice.Sync();
+            var _rd = RenderingServer.CreateLocalRenderingDevice();
 
-            var rids_to_free = new List<Rid> {_chunk_pos_buffer_rid, _uniform_set, _compute_pipeline};
+            var _voxel_gen_shader = _rd.ShaderCreateFromSpirV(_vox_shader_file.GetSpirV());
+
+            // add noise layer data to buffer
+            var noise_layer_struct_size = Marshal.SizeOf<NoiseLayerStruct>();
+            var _noiseLayerParamsBufferData = new byte[noise_layer_struct_size*NoiseLayers.Count];
+            var noise_layer_array = new NoiseLayerStruct[NoiseLayers.Count];
+            for (var i=0; i < noise_layer_array.Length; i++) noise_layer_array[i] = new NoiseLayerStruct(NoiseLayers[i]);
+            var noise_layer_array_bytes = MemoryMarshal.AsBytes<NoiseLayerStruct>(noise_layer_array).ToArray();
+            noise_layer_array_bytes.CopyTo(_noiseLayerParamsBufferData.AsSpan());
+            var _noiseLayerParamsBuffer = _rd.StorageBufferCreate((uint)_noiseLayerParamsBufferData.Length, _noiseLayerParamsBufferData);
+
+            var _chunkParamsBufferData = new byte[Marshal.SizeOf<ChunkParamsStruct>()];
+            var chunk_params_bytes = MemoryMarshal.AsBytes([new ChunkParamsStruct(ChunkGenParams)]);
+            chunk_params_bytes.CopyTo(_chunkParamsBufferData);
+            var _chunkParamsBuffer = _rd.StorageBufferCreate((uint)_chunkParamsBufferData.Length, _chunkParamsBufferData);
+            
+            var vox_buffer = new byte[sizeof(int)*ChunkManager.CSP3];
+            var vox_buffer_rid = _rd.StorageBufferCreate((uint)vox_buffer.Length, vox_buffer);
+            var vox_uniform = BufferToUniform(vox_buffer_rid, RenderingDevice.UniformType.StorageBuffer, 0);
+
+            var _chunk_pos_bytes = MemoryMarshal.AsBytes([chunk_position]).ToArray();
+            var _chunk_pos_buffer_rid = _rd.StorageBufferCreate((uint)_chunk_pos_bytes.Length, _chunk_pos_bytes);
+            var _chunk_pos_uniform = BufferToUniform(_chunk_pos_buffer_rid, RenderingDevice.UniformType.StorageBuffer, 1);
+
+            var params_uniform = BufferToUniform(_chunkParamsBuffer, RenderingDevice.UniformType.StorageBuffer, 2);
+            var noise_uniform = BufferToUniform(_noiseLayerParamsBuffer, RenderingDevice.UniformType.StorageBuffer, 3);
+
+            var _bindings = new Godot.Collections.Array<RDUniform> { vox_uniform, _chunk_pos_uniform, params_uniform, noise_uniform};
+
+            var _uniform_set = _rd.UniformSetCreate(_bindings, _voxel_gen_shader, 0);
+
+            var _compute_pipeline = _rd.ComputePipelineCreate(_voxel_gen_shader);
+            var _compute_list = _rd.ComputeListBegin();
+            _rd.ComputeListBindComputePipeline(_compute_list, _compute_pipeline);
+            _rd.ComputeListBindUniformSet(_compute_list, _uniform_set, 0);
+            _rd.ComputeListDispatch(_compute_list, _workgroup_size, _workgroup_size, _workgroup_size);
+            _rd.ComputeListEnd();
+    
+            _rd.Submit();
+
+            var rids_to_free = new List<Rid> {vox_buffer_rid, _noiseLayerParamsBuffer, _chunkParamsBuffer,
+            _chunk_pos_buffer_rid, _uniform_set, _compute_pipeline, _voxel_gen_shader};
 
             var lambda = (byte[] voxels) =>
             {
@@ -109,7 +126,8 @@ public partial class ComputeManager : Node
 
                 var mesh = ChunkManager.BuildChunkMesh(chunk_position);
                 chunk.MeshInstance.Mesh = mesh;
-                foreach (Rid r in rids_to_free) if (r.IsValid) LocalRenderingDevice.FreeRid(r);
+                foreach (Rid r in rids_to_free) if (r.IsValid) _rd.FreeRid(r);
+                _rd.Free();
             };
 
             var t = new Timer()
@@ -118,7 +136,9 @@ public partial class ComputeManager : Node
                 OneShot = true
             };
             t.Timeout += () => {
-                LocalRenderingDevice.BufferGetDataAsync(vox_buffer.VoxelBufferRid, Callable.From(lambda));
+
+                _rd.BufferGetDataAsync(vox_buffer_rid, Callable.From(lambda));
+                _rd.Sync();
                 t.QueueFree();
             };
             AddSibling(t);
@@ -136,57 +156,57 @@ public partial class ComputeManager : Node
         return dataUniform;
     }
 
-    public static IComputeBuffer GetBuffer(string type)
-    {
-        if (!(type == "mesh" || type == "voxel")) throw new Exception("Invalid buffer type");
+    // public static IComputeBuffer GetBuffer(string type)
+    // {
+    //     if (!(type == "mesh" || type == "voxel")) throw new Exception("Invalid buffer type");
 
-        if (type == "mesh")
-        {
-            if (_availableMeshComputeBuffers.Count > 0) return _availableMeshComputeBuffers.Dequeue();
-            return CreateNewComputeBuffer(type, false);
-        }
-        else if (type == "voxel")
-        {
-            if (_availableVoxelComputeBuffers.Count > 0) return _availableVoxelComputeBuffers.Dequeue(); 
-            return CreateNewComputeBuffer(type, false);
-        }
+    //     if (type == "mesh")
+    //     {
+    //         if (_availableMeshComputeBuffers.Count > 0) return _availableMeshComputeBuffers.Dequeue();
+    //         return CreateNewComputeBuffer(type, false);
+    //     }
+    //     else if (type == "voxel")
+    //     {
+    //         if (_availableVoxelComputeBuffers.Count > 0) return _availableVoxelComputeBuffers.Dequeue(); 
+    //         return CreateNewComputeBuffer(type, false);
+    //     }
 
-        throw new Exception("Unhandled buffer type");
-    }
+    //     throw new Exception("Unhandled buffer type");
+    // }
 
-    public static IComputeBuffer CreateNewComputeBuffer(string type, bool enqueue)
-    {
-        if (!(type == "mesh" || type == "voxel")) throw new Exception("Invalid buffer type");
+    // public static IComputeBuffer CreateNewComputeBuffer(string type, bool enqueue)
+    // {
+    //     if (!(type == "mesh" || type == "voxel")) throw new Exception("Invalid buffer type");
 
-        IComputeBuffer buffer;
+    //     IComputeBuffer buffer;
         
-        buffer = type == "mesh" ? new MeshBuffer() : new VoxelBuffer();
-        buffer.InitializeBuffer();
+    //     buffer = type == "mesh" ? new MeshBuffer() : new VoxelBuffer();
+    //     buffer.InitializeBuffer();
 
-        if (type == "mesh")
-        {
-            _allMeshComputeBuffers.Add((MeshBuffer)buffer);
-            if (enqueue) _availableMeshComputeBuffers.Enqueue((MeshBuffer)buffer);
-        }
-        else if (type == "voxel")
-        {
-            _allVoxelComputeBuffers.Add((VoxelBuffer)buffer);
-            if (enqueue) _availableVoxelComputeBuffers.Enqueue((VoxelBuffer)buffer);
-        }
+    //     if (type == "mesh")
+    //     {
+    //         _allMeshComputeBuffers.Add((MeshBuffer)buffer);
+    //         if (enqueue) _availableMeshComputeBuffers.Enqueue((MeshBuffer)buffer);
+    //     }
+    //     else if (type == "voxel")
+    //     {
+    //         _allVoxelComputeBuffers.Add((VoxelBuffer)buffer);
+    //         if (enqueue) _availableVoxelComputeBuffers.Enqueue((VoxelBuffer)buffer);
+    //     }
 
-        return buffer;
-    }
+    //     return buffer;
+    // }
 
-    public static void FreeAllRids()
-    {
-        foreach (var buffer in _allMeshComputeBuffers) buffer.Deactivate_And_FreeBufferRids();
-        foreach (var buffer in _allVoxelComputeBuffers) buffer.Deactivate_And_FreeBufferRids();
-        LocalRenderingDevice.FreeRid(_noiseLayerParamsBuffer);
-        LocalRenderingDevice.FreeRid(_chunkParamsBuffer);
-        LocalRenderingDevice.FreeRid(_voxel_gen_shader);
-        LocalRenderingDevice.FreeRid(_mesh_gen_shader);
-        LocalRenderingDevice.Free();
-    }
+    // public static void FreeAllRids()
+    // {
+    //     foreach (var buffer in _allMeshComputeBuffers) buffer.Deactivate_And_FreeBufferRids();
+    //     foreach (var buffer in _allVoxelComputeBuffers) buffer.Deactivate_And_FreeBufferRids();
+    //     LocalRenderingDevice.FreeRid(_noiseLayerParamsBuffer);
+    //     LocalRenderingDevice.FreeRid(_chunkParamsBuffer);
+    //     LocalRenderingDevice.FreeRid(_voxel_gen_shader);
+    //     LocalRenderingDevice.FreeRid(_mesh_gen_shader);
+    //     LocalRenderingDevice.Free();
+    // }
 
     // ---------------------------------------------------
     // Structs

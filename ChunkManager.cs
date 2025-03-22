@@ -233,7 +233,7 @@ public partial class ChunkManager : Node3D
     public override void _ExitTree()
     {
         ComputeChunk.FreeLocalRenderingDevice();
-        ComputeManager.FreeAllRids();
+        //ComputeManager.FreeAllRids();
     }
 
     public async static void UpdateMeshCacheData()
