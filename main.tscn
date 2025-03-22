@@ -1,9 +1,10 @@
-[gd_scene load_steps=69 format=3 uid="uid://blp0l0liacp4g"]
+[gd_scene load_steps=70 format=3 uid="uid://blp0l0liacp4g"]
 
 [ext_resource type="PackedScene" uid="uid://gxlf0mku2esi" path="res://block_manager.tscn" id="1_0xm2m"]
+[ext_resource type="Script" uid="uid://ba3cc42w2181m" path="res://ChunkManagerThreaded.cs" id="1_abqjc"]
 [ext_resource type="PackedScene" uid="uid://c34gjn8qgnneo" path="res://simple_controller.tscn" id="1_ig7tw"]
+[ext_resource type="Script" uid="uid://c3fyrkmgn53u5" path="res://ComputeManager.cs" id="2_6iyjs"]
 [ext_resource type="Texture2D" uid="uid://lfcjwjt4uvta" path="res://BlockTextures/EMPTY_TEXTURE.png" id="2_b1qrp"]
-[ext_resource type="Script" uid="uid://s86k4n4738lq" path="res://ChunkManager.cs" id="2_h2yge"]
 [ext_resource type="Script" uid="uid://wuolt7vnkyjw" path="res://Block.cs" id="3_come4"]
 [ext_resource type="Texture2D" uid="uid://bvlycywksqrek" path="res://BlockTextures/dirt.png" id="4_h8e4i"]
 [ext_resource type="Texture2D" uid="uid://bkpj5lder3h1q" path="res://BlockTextures/GrassSide.png" id="5_4lmeg"]
@@ -597,33 +598,13 @@ environment = SubResource("Environment_lquwl")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="WorldEnvironment"]
 transform = Transform3D(1, 0, 0, 0, 0.530526, 0.847669, 0, -0.847669, 0.530526, 0, 0, 0)
 
+[node name="ComputeManager" type="Node" parent="."]
+script = ExtResource("2_6iyjs")
+
+[node name="ThreadedChunkManager" type="Node" parent="."]
+script = ExtResource("1_abqjc")
+
 [node name="BlockManager" parent="." instance=ExtResource("1_0xm2m")]
 Blocks = Array[Object]([SubResource("Resource_jx0ag"), SubResource("Resource_acfbf"), SubResource("Resource_2jh7v"), SubResource("Resource_8qynj"), SubResource("Resource_08gm7"), SubResource("Resource_rrxkc"), SubResource("Resource_u2jqt"), SubResource("Resource_c1lq1"), SubResource("Resource_svbav"), SubResource("Resource_jetqs"), SubResource("Resource_5cwg0"), SubResource("Resource_psntt"), SubResource("Resource_8x358"), SubResource("Resource_22yoo"), SubResource("Resource_1shsb"), SubResource("Resource_gn64w"), SubResource("Resource_peibf"), SubResource("Resource_8qjln"), SubResource("Resource_tleib"), SubResource("Resource_tot6o"), SubResource("Resource_oig7q"), SubResource("Resource_kkkcx"), SubResource("Resource_psxkl"), SubResource("Resource_y3aqf"), SubResource("Resource_4hog5")])
 
-[node name="ChunkManager" type="Node3D" parent="." node_paths=PackedStringArray("ChunkMesh")]
-script = ExtResource("2_h2yge")
-ChunkMesh = NodePath("MeshInstance3D")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="ChunkManager"]
-
 [node name="SimpleController" parent="." instance=ExtResource("1_ig7tw")]
-
-[connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/Button" to="ChunkManager" method="PrintDebugVariables"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/MaxWorldHeight" to="ChunkManager" method="ChunkValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer2/OceanHeight" to="ChunkManager" method="ChunkValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer3/CaveNoiseScale" to="ChunkManager" method="ChunkValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer4/ChunkCaveThreshold" to="ChunkManager" method="ChunkValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer5/GenerateCaves" to="ChunkManager" method="ChunkValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer6/ForceFloor" to="ChunkManager" method="ChunkValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer/Gain" to="ChunkManager" method="NoiseValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer2/Frequency" to="ChunkManager" method="NoiseValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer3/Lacunarity" to="ChunkManager" method="NoiseValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer4/Persistence" to="ChunkManager" method="NoiseValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer5/Octaves" to="ChunkManager" method="NoiseValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer6/CaveScale" to="ChunkManager" method="NoiseValueChanged"]
-[connection signal="value_changed" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer2/MarginContainer/VBoxContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer/HBoxContainer7/CaveThreshold" to="ChunkManager" method="NoiseValueChanged"]
-[connection signal="drag_ended" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/YRenderSlider" to="ChunkManager" method="UpdateRenderDistance"]
-[connection signal="drag_ended" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/XZRenderSlider" to="ChunkManager" method="UpdateRenderDistance"]
-[connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/HBoxContainer/Button" to="ChunkManager" method="UpdateMeshesTest" binds= [false]]
-[connection signal="toggled" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/HBoxContainer/MeshOnGpu" to="ChunkManager" method="ToggledGpuMeshing"]
-[connection signal="button_up" from="Control/MarginContainer/CenterContainer/HBoxContainer/PanelContainer/MarginContainer/VBoxContainer2/Button2" to="ChunkManager" method="UpdateMeshesTest" binds= [true]]

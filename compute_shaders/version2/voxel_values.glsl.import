@@ -1,0 +1,14 @@
+[remap]
+
+importer="glsl"
+type="RDShaderFile"
+uid="uid://cude2iylab5el"
+path="res://.godot/imported/voxel_values.glsl-3dc4da20653b994f6358c780768d604d.res"
+
+[deps]
+
+source_file="res://compute_shaders/version2/voxel_values.glsl"
+dest_files=["res://.godot/imported/voxel_values.glsl-3dc4da20653b994f6358c780768d604d.res"]
+
+[params]
+

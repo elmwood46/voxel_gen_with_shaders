@@ -156,7 +156,7 @@ public partial class ChunkManager : Node3D
             var cave_scale = GetNode<SpinBox>("%CaveScale");
             var cave_thresh = GetNode<SpinBox>("%CaveThreshold");
 
-            var noise_layer = new NoiseLayer()
+            var noise_layer = new NoiseLayerResource()
             {
                 Gain = (float)gain.Value,
                 Frequency = (float)frequency.Value,
@@ -232,7 +232,8 @@ public partial class ChunkManager : Node3D
     // free the rendering device when closing the scene
     public override void _ExitTree()
     {
-        ComputeChunk.FreeRenderingDevice();
+        ComputeChunk.FreeLocalRenderingDevice();
+        ComputeManager.FreeAllRids();
     }
 
     public async static void UpdateMeshCacheData()
@@ -258,6 +259,37 @@ public partial class ChunkManager : Node3D
         await Task.WhenAll(task_list);
         stopwatch.Stop();
         GD.Print($"UpdateMeshCacheData time elapsed: {stopwatch.ElapsedMilliseconds} ms");
+        return;
+    }
+
+    public async static void UpdateMeshCacheData(Vector3I chunk_position)
+    {
+        var stopwatch = Stopwatch.StartNew();
+
+
+        if (!MESHCACHE.TryGetValue(chunk_position, out var chunk))
+        {
+            GD.PrintErr($"Chunk at {chunk_position} not found in MESHCACHE");
+            return;
+        }
+
+        await Task.Run(() => {
+            // do multithreaded greedy meshing of LOD meshes
+            var new_arraymesh = BuildChunkMesh(chunk_position);
+            var xform = new Transform3D(Basis.Identity, (Godot.Vector3)chunk_position*CHUNK_SIZE);
+            var trimesh_shape = new_arraymesh.CreateTrimeshShape();
+
+            Callable.From(()=>{
+                chunk.MeshInstance.Mesh = new_arraymesh;
+                chunk.CollisionShape.Shape = trimesh_shape;
+                chunk.Transform = xform;
+            }).CallDeferred();
+
+            return Task.CompletedTask;
+        });
+
+        stopwatch.Stop();
+        GD.Print($"UpdateMeshCacheData {chunk_position} time elapsed: {stopwatch.ElapsedMilliseconds} ms");
         return;
     }
 }

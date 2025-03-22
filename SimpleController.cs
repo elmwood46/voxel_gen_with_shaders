@@ -11,9 +11,11 @@ public partial class SimpleController : CharacterBody3D
 	private Node3D _camera_container;
 	private float _mouse_sen = 0.3f;
 	private float _cameraXRotation = 0.0f;
+	public static SimpleController Instance {get; private set;}
 	
 	public override void _Ready()
 	{
+		Instance = this;
 		Input.SetMouseMode(Input.MouseModeEnum.Captured);
 		_camera_gimbal = new Node3D();
 		_camera_container = new Node3D();

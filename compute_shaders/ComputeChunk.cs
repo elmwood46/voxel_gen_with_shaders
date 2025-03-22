@@ -8,18 +8,12 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-[GlobalClass]
-public partial class NoiseLayer : Resource
+public class MeshArrayDataPacket
 {
-    [Export] public float Gain = 0.7f;
-    [Export] public float Frequency = 700f;
-    [Export] public float Lacunarity = 3.3f;
-    [Export] public float Persistence = 0.27f;
-    [Export] public int Octaves = 5;
-    [Export] public float CaveScale = 50f;
-    [Export] public float CaveThreshold = 0.75f;
-    [Export] public int SurfaceVoxelId = 3;
-    [Export] public int SubSurfaceVoxelId = 2;
+    public Vector3[] Vertices = [];
+    public Vector3[] Normals = [];
+    public Vector2[] UVs = [];
+    public MeshArrayDataPacket(){}
 }
 
 public static class ComputeChunk
@@ -50,6 +44,24 @@ public static class ComputeChunk
         // it is a variable sized array, and cannot be blittable
         // avoid non-blittalbe type in struct, instead we append this to the buffer in GenerateParameterBufferBytes 
         // public System.Numerics.Vector3[] ChunkPositions;
+
+        public ChunkParamsStruct(ChunkGenParamsResource c)
+        {
+            SeedOffset = new System.Numerics.Vector4(c.SeedOffset.X, c.SeedOffset.Y, c.SeedOffset.Z, 0.0f);
+            CSP = c.CSP;
+            CSP3 = c.CSP3;
+            NumChunksToCompute = c.NumChunksToCompute;
+            MaxWorldHeight = c.MaxWorldHeight;
+            StoneBlockID = c.StoneBlockID;
+            OceanHeight = c.OceanHeight;
+            NoiseLayerCount = c.NoiseLayerCount;
+            NoiseSeed = c.NoiseSeed;
+            NoiseScale = c.NoiseScale;
+            CaveNoiseScale = c.CaveNoiseScale;
+            CaveThreshold = c.CaveThreshold;
+            GenerateCaves = c.GenerateCaves;
+            ForceFloor = c.ForceFloor;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
@@ -83,7 +95,7 @@ public static class ComputeChunk
 
         public NoiseLayerStruct(){}
 
-        public NoiseLayerStruct(NoiseLayer noiseLayer)
+        public NoiseLayerStruct(NoiseLayerResource noiseLayer)
         {
             Gain = noiseLayer.Gain;
             Frequency = noiseLayer.Frequency;
@@ -97,13 +109,7 @@ public static class ComputeChunk
         }
     }
 
-    private class MeshArrayDataPacket
-    {
-        public Vector3[] Vertices = [];
-        public Vector3[] Normals = [];
-        public Vector2[] UVs = [];
-        public MeshArrayDataPacket(){}
-    }
+
 
     private class MeshCallables(Dictionary<Vector3I, MeshArrayDataPacket> meshdict)
     {
@@ -176,6 +182,8 @@ public static class ComputeChunk
     private static readonly RDShaderFile _shader_file = ResourceLoader.Load<RDShaderFile>("res://compute_shaders/chunkgen.glsl");
     private static readonly RDShaderFile _mesh_shader_file = ResourceLoader.Load<RDShaderFile>("res://compute_shaders/meshing/compute_meshing.glsl");
 
+    public static readonly RenderingDevice LocalRenderingDevice = RenderingServer.CreateLocalRenderingDevice();
+
     public static int MaxWorldHeight = 250;
     public static float CaveNoiseScale = 550.0f;
     public static float CaveThreshold = 0.75f;
@@ -234,7 +242,7 @@ public static class ComputeChunk
         }
     ];
 
-    public static void SetNoiseLayer(int index,NoiseLayer noiseLayer)
+    public static void SetNoiseLayer(int index,NoiseLayerResource noiseLayer)
     {
         _noise_layers[index] = new NoiseLayerStruct(noiseLayer);
     }
@@ -290,8 +298,9 @@ public static class ComputeChunk
 
     public static void GenerateMultiChunks(List<Vector3I> chunksToGenerate, bool mesh_on_gpu = false)
     {
+        if (!GodotObject.IsInstanceValid(LocalRenderingDevice)) return;
         var stopwatch = Stopwatch.StartNew();
-        var _rd = RenderingServer.CreateLocalRenderingDevice();
+        var _rd = LocalRenderingDevice;
         var _shader_spir_v = _shader_file.GetSpirV();
         
         var _compute_shader = _rd.ShaderCreateFromSpirV(_shader_spir_v);
@@ -357,8 +366,6 @@ public static class ComputeChunk
 
         GD.Print($"compute shader generating chunks time elapsed: {stopwatch.ElapsedMilliseconds} ms");
 
-        
-
         if (mesh_on_gpu)
         {
             // // trying to process any more than 21 chunks at once on the GPU will exceed max buffer sizes (buffers go up to 128MB, 21 chunks of MAX VERTEX each will be 122.472 mb)
@@ -382,14 +389,15 @@ public static class ComputeChunk
         }
 
         FreeRids(_rd, rids);
-        _rd.Free();
+        //_rd.Free();
     }
 
-    public static void MeshMultiChunks(List<Vector3I> chunksToMesh, byte[] voxel_data)
+    public async static void MeshMultiChunks(List<Vector3I> chunksToMesh, byte[] voxel_data)
     {
+        if (!GodotObject.IsInstanceValid(LocalRenderingDevice)) return;
         var stopwatch = Stopwatch.StartNew();
 
-        var _rd = RenderingServer.CreateLocalRenderingDevice();
+        var _rd = LocalRenderingDevice;//RenderingServer.CreateLocalRenderingDevice();
         var _shader_spir_v = _mesh_shader_file.GetSpirV();
         var _compute_shader = _rd.ShaderCreateFromSpirV(_shader_spir_v);
 
@@ -494,6 +502,7 @@ public static class ComputeChunk
         }
 
         // do more work to force the async readbacks to finish
+        // without this, it does not work...for some reason...
         _rd.BufferGetData(_params_buffer_rid);
 
         foreach (var (chunk_position, mesh_data_packet) in meshDict)
@@ -532,7 +541,7 @@ public static class ComputeChunk
 
         _compute_rids_to_free.Add(_compute_shader);
         FreeRids(_rd, _compute_rids_to_free);
-        _rd.Free();
+        //_rd.Free();
     }
 
     public static void MeshMultiChunks_SINGLE_PIPELINE(List<Vector3I> chunksToMesh, byte[] voxel_data)
@@ -1037,13 +1046,20 @@ public static class ComputeChunk
         calltest.CallDeferred("this is a test");*/
     }
 
+    public static void FreeLocalRenderingDevice()
+    {
+        if (GodotObject.IsInstanceValid(LocalRenderingDevice))
+        {
+            LocalRenderingDevice.Free();
+        }
+    }
+
     private static void FreeRids(RenderingDevice _rd, Rid[] rids)
     {
         foreach (Rid r in rids)
         {  
             if(r.IsValid) _rd.FreeRid(r); 
         }
-        //_rd.Free();
     }
 
     private static void FreeRids(RenderingDevice _rd, List<Rid> rids)
@@ -1053,7 +1069,6 @@ public static class ComputeChunk
             //GD.Print("attemping to free: ", r, " and rid is valid: ", r.IsValid);
             if(r.IsValid) _rd.FreeRid(r); 
         }
-        //_rd.Free();
     }    
     private static void FreeRids(RenderingDevice _rd, Rid[][] rids)
     {
