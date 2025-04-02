@@ -2,18 +2,10 @@ extends Node
 
 var rd := RenderingServer.create_local_rendering_device()
 
-var t := Timer.new()
-var firstloop = true
-
 func _buffer_get_data_callback(array):
 	print("called callback function")
 	var output = array.to_float32_array()
 	print("Callable Output: ", output)
-	pass
-
-func _async_get_result(buffer):
-	var result := rd.buffer_get_data_async(buffer, _buffer_get_data_callback)
-	print("buffer_get_data_async() output: ", result)
 	pass
 
 func _run_compute_shader():
@@ -47,32 +39,11 @@ func _run_compute_shader():
 	rd.compute_list_dispatch(compute_list, 5, 1, 1)
 	rd.compute_list_end()
 
-	# execute
-	#t.connect("timeout", _async_get_result.bind(buffer))
-	#t.start()
 	rd.submit()
 	rd.sync()
 	rd.buffer_get_data_async(buffer, _buffer_get_data_callback)
 	pass
-	# var output_bytes := rd.buffer_get_data(buffer)
-
-	#rd.submit()
-	#rd.sync()
-
-	#var output_bytes := rd.buffer_get_data(buffer)
-	#var output := output_bytes.to_float32_array()
-	#print("Input: ", input)
-	#print("Output: ", output)
-
-func _process(_delta):
-	if (firstloop):
-		_run_compute_shader()
-		firstloop = false
-	pass
 
 func _ready():
-	add_child(t)
-	t.autostart = false
-	t.one_shot = true
-	t.wait_time = 0.05
+	_run_compute_shader()
 	pass

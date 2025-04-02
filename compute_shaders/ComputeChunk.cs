@@ -8,7 +8,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
-[GlobalClass]
 public partial class NoiseLayer : Resource
 {
     [Export] public float Gain = 0.7f;
@@ -22,13 +21,21 @@ public partial class NoiseLayer : Resource
     [Export] public int SubSurfaceVoxelId = 2;
 }
 
-public static class ComputeChunk
+public class MeshArrayDataPacket
+{
+    public Vector3[] Vertices = [];
+    public Vector3[] Normals = [];
+    public Vector2[] UVs = [];
+    public MeshArrayDataPacket(){}
+}
+
+public partial class ComputeChunk : Node
 {
     // struct to hold the parameters for the compute shader
     [StructLayout(LayoutKind.Sequential, Pack = 4)]
     private struct ChunkParamsStruct
     {
-        public System.Numerics.Vector4 SeedOffset;
+        public Vector4 SeedOffset;
         public int CSP;
         public int CSP3;
         public int NumChunksToCompute;
@@ -97,12 +104,13 @@ public static class ComputeChunk
         }
     }
 
-    private class MeshArrayDataPacket
+    private class PooledByteBufferObj
     {
-        public Vector3[] Vertices = [];
-        public Vector3[] Normals = [];
-        public Vector2[] UVs = [];
-        public MeshArrayDataPacket(){}
+        public byte[] Voxels = new byte[ChunkManager.CSP3*MAX_CHUNKS_TO_MESH_PER_PIPELINE*sizeof(int)];
+        public byte[] AtomicCounter = new byte[MAX_CHUNKS_TO_MESH_PER_PIPELINE*sizeof(uint)];
+        public byte[] Vertices = new byte[MAX_CHUNKS_TO_MESH_PER_PIPELINE*MAX_VERTS_PER_CHUNK*Marshal.SizeOf<Vector3>()];
+        public byte[] Normals = new byte[MAX_CHUNKS_TO_MESH_PER_PIPELINE*MAX_VERTS_PER_CHUNK*Marshal.SizeOf<Vector3>()];
+        public byte[] UVs = new byte[MAX_CHUNKS_TO_MESH_PER_PIPELINE*MAX_VERTS_PER_CHUNK*Marshal.SizeOf<Vector2>()];
     }
 
     private class MeshCallables(Dictionary<Vector3I, MeshArrayDataPacket> meshdict)
@@ -183,6 +191,10 @@ public static class ComputeChunk
     public static bool GenerateCaves = true;
     public static bool ForceFloor = true;
     const int MAX_VERTS_PER_CHUNK = 6*6*ChunkManager.CHUNK_SIZE*ChunkManager.CHUNK_SIZE*ChunkManager.CHUNK_SIZE/2;
+    const int NUM_CHUNK_BUFFERS = 0;
+
+    // trying to process any more than ~9 chunks at once on the GPU will exceed max buffer sizes (buffers go up to 128MB, 9 chunks with 3*MAX VERTEX each gets large)
+    const int MAX_CHUNKS_TO_MESH_PER_PIPELINE = 10;
 
     /*
             Gain = 0.5f,
@@ -258,35 +270,43 @@ public static class ComputeChunk
     };
     //private static readonly RenderingDevice _rd = RenderingServer.CreateLocalRenderingDevice();
 
-    //public static ConcurrentDictionary<RenderingDevice,  int> _computeResources = new();
+    private readonly ConcurrentQueue<PooledByteBufferObj> _buffer_pool = [];
+    private readonly ConcurrentBag<PooledByteBufferObj> _used_buffers = [];
 
-    /*
-    private static void BufferGetDataCallback(byte[] array, Vector3I chunkPosition, RenderingDevice _rd, Rid[] rids)
+    public static ComputeChunk Instance {get; private set;}
+
+    private static readonly int _vec3_size = Marshal.SizeOf<Vector3>();
+    private static readonly int _vec2_size = Marshal.SizeOf<Vector2>();
+    private static readonly int _voxel_bytes_per_chunk = ChunkManager.CSP3*sizeof(int);
+
+    public override void _Ready()
     {
-        _rd.Sync();
-        GD.Print("Generated chunk at: " + chunkPosition);
-        //_rd.Sync();
-        var data = new int[ChunkManager.CSP3];
-        Buffer.BlockCopy(array, 0, data, 0, array.Length);
+        Instance = this;
 
-        ChunkManager.BLOCKCACHE[chunkPosition] = data;
-        var tempstring = "";
-        for (int i = 0; i < 20; i++)
+        for (int i=0; i< NUM_CHUNK_BUFFERS; i++)
         {
-            tempstring +=  ChunkManager.BLOCKCACHE[chunkPosition][i] + " ";
+            _buffer_pool.Enqueue(new PooledByteBufferObj());
         }
-        tempstring += "...";
-        GD.Print(tempstring);
-        
-        RenderingServer.CallOnRenderThread(Callable.From(()=>
+    }
+
+    private static PooledByteBufferObj GetByteBufferObj()
+    {
+        if (Instance._buffer_pool.TryDequeue(out var pooledBuffer))
         {
-            foreach (Rid r in rids)
-            {
-                _rd.FreeRid(r);
-            }
-            _rd.Free();            
-        }));
-    }*/
+            Instance._used_buffers.Add(pooledBuffer);
+            return pooledBuffer;
+        }
+        else
+        {
+            return new PooledByteBufferObj();
+        }
+    }
+
+    private static void PoolByteBufferObj(PooledByteBufferObj pooledBuffer)
+    {
+        if (Instance._used_buffers.TryTake(out pooledBuffer))
+            Instance._buffer_pool.Enqueue(pooledBuffer);
+    }
 
     public static void GenerateMultiChunks(List<Vector3I> chunksToGenerate, bool mesh_on_gpu = false)
     {
@@ -355,9 +375,7 @@ public static class ComputeChunk
 
         stopwatch.Stop();
 
-        GD.Print($"compute shader generating chunks time elapsed: {stopwatch.ElapsedMilliseconds} ms");
-
-        
+        GD.Print($"compute shader generating chunks time elapsed: {stopwatch.ElapsedMilliseconds} ms");       
 
         if (mesh_on_gpu)
         {
@@ -374,11 +392,11 @@ public static class ComputeChunk
             //     MeshMultiChunks(chunk_batch, voxel_batch);
             // }
 
-            MeshMultiChunks(chunksToGenerate, voxel_array_readback);
+            //MeshMultiChunks(chunksToGenerate, voxel_array_readback);
         }
         else
         {
-            ChunkManager.UpdateMeshCacheData();
+            //ChunkManager.UpdateMeshCacheData();
         }
 
         FreeRids(_rd, rids);
@@ -389,6 +407,7 @@ public static class ComputeChunk
     {
         var stopwatch = Stopwatch.StartNew();
 
+        var setup_timer = Stopwatch.StartNew();
         var _rd = RenderingServer.CreateLocalRenderingDevice();
         var _shader_spir_v = _mesh_shader_file.GetSpirV();
         var _compute_shader = _rd.ShaderCreateFromSpirV(_shader_spir_v);
@@ -403,10 +422,7 @@ public static class ComputeChunk
         var texture_array_coords_buffer = MemoryMarshal.AsBytes(BlockManager.AllBlocksTextureArrayPositions.AsSpan()).ToArray();
         var texture_array_coords_buffer_rid = _rd.StorageBufferCreate((uint)texture_array_coords_buffer.Length, texture_array_coords_buffer);
         var texture_array_coords_uniform = GenerateUniform(texture_array_coords_buffer_rid, RenderingDevice.UniformType.StorageBuffer, 2);
-        
-        var vec3_size = Marshal.SizeOf<Vector3>();
-        var vec2_size = Marshal.SizeOf<Vector2>();
-
+    
         // keep track of RIDs in the order they were added, so we can free them later
         var _compute_rids_to_free = new List<Rid>(){_params_buffer_rid, texture_array_coords_buffer_rid};
         
@@ -414,36 +430,32 @@ public static class ComputeChunk
         List<(Rid,Rid,Rid,Rid,List<Vector3I>)> chunk_batch_list = [];
 
         // trying to process any more than 21 chunks at once on the GPU will exceed max buffer sizes (buffers go up to 128MB, 21 chunks with MAX VERTEX each will be 122.472 mb)
-        int chunk_batch_stride = 9;//chunksToGenerate.Count;
-        var bytes_per_chunk = ChunkManager.CSP3*sizeof(int);
         //GD.Print("total chunks to mesh: ", chunksToMesh.Count);
         // GD.Print("chunk batch size: ", chunk_batch_stride, $" i<({chunksToMesh.Count/chunk_batch_stride})");
-
         var _compute_pipeline = _rd.ComputePipelineCreate(_compute_shader);
-        for (int i=0; i<Mathf.Ceil(chunksToMesh.Count/(float)chunk_batch_stride);i++)
+        for (int i=0; i<Mathf.Ceil(chunksToMesh.Count/(float)MAX_CHUNKS_TO_MESH_PER_PIPELINE);i++)
         {
-            var chunk_batch = chunksToMesh.Skip(i*chunk_batch_stride).Take(chunk_batch_stride).ToList();
-            var voxel_batch = voxel_data.AsSpan(i*chunk_batch_stride*bytes_per_chunk, chunk_batch.Count*bytes_per_chunk).ToArray();
+            var chunk_batch = chunksToMesh.Skip(i*MAX_CHUNKS_TO_MESH_PER_PIPELINE).Take(MAX_CHUNKS_TO_MESH_PER_PIPELINE).ToList();
+            var voxel_batch = voxel_data.AsSpan(i*MAX_CHUNKS_TO_MESH_PER_PIPELINE*_voxel_bytes_per_chunk, chunk_batch.Count*_voxel_bytes_per_chunk);
+            var ByteBuffer = GetByteBufferObj();
+            voxel_batch.CopyTo(ByteBuffer.Voxels);
+            Array.Clear(ByteBuffer.AtomicCounter);
 
-            var max_verts = MAX_VERTS_PER_CHUNK * chunk_batch.Count;
+            var max_verts_this_batch = MAX_VERTS_PER_CHUNK * chunk_batch.Count;
 
-            var _voxel_buffer_rid = _rd.StorageBufferCreate((uint)voxel_batch.Length, voxel_batch);
+            var _voxel_buffer_rid = _rd.StorageBufferCreate((uint)ByteBuffer.Voxels.Length, ByteBuffer.Voxels);
             var _voxel_array_uniform = GenerateUniform(_voxel_buffer_rid, RenderingDevice.UniformType.StorageBuffer, 0);
 
-            var atomicCounterBytes = new byte[chunksToMesh.Count * sizeof(uint)];
-            var _atomic_counter_rid = _rd.StorageBufferCreate((uint)atomicCounterBytes.Length, atomicCounterBytes);
+            var _atomic_counter_rid = _rd.StorageBufferCreate((uint)ByteBuffer.AtomicCounter.Length, ByteBuffer.AtomicCounter);
             var _atomic_counter_uniform = GenerateUniform(_atomic_counter_rid, RenderingDevice.UniformType.StorageBuffer, 3);
 
-            var vertex_buffer = new byte[max_verts*vec3_size];
-            var vertex_buffer_rid = _rd.StorageBufferCreate((uint)vertex_buffer.Length, vertex_buffer);
+            var vertex_buffer_rid = _rd.StorageBufferCreate((uint)ByteBuffer.Vertices.Length, ByteBuffer.Vertices);
             var vertex_buffer_uniform = GenerateUniform(vertex_buffer_rid, RenderingDevice.UniformType.StorageBuffer, 4);
 
-            var normals_buffer = new byte[max_verts*vec3_size];
-            var normals_buffer_rid = _rd.StorageBufferCreate((uint)normals_buffer.Length, normals_buffer);
+            var normals_buffer_rid = _rd.StorageBufferCreate((uint)ByteBuffer.Vertices.Length, ByteBuffer.Normals);
             var normals_buffer_uniform = GenerateUniform(normals_buffer_rid, RenderingDevice.UniformType.StorageBuffer, 5);
 
-            var uvs_buffer = new byte[max_verts*vec2_size];
-            var uvs_buffer_rid = _rd.StorageBufferCreate((uint)uvs_buffer.Length, uvs_buffer);
+            var uvs_buffer_rid = _rd.StorageBufferCreate((uint)ByteBuffer.UVs.Length, ByteBuffer.UVs);
             var uvs_buffer_uniform = GenerateUniform(uvs_buffer_rid, RenderingDevice.UniformType.StorageBuffer, 6);
 
             var _bindings = new Godot.Collections.Array<RDUniform> {
@@ -455,29 +467,39 @@ public static class ComputeChunk
 
             //GD.Print($"meshing {chunk_batch.Count}, ({i*chunk_batch_stride}-{i*chunk_batch_stride+chunk_batch.Count}) chunks: ", chunk_batch.Select(x => x.ToString()).ToArray().Join(","));
             
-            
             var _compute_list = _rd.ComputeListBegin();
             _rd.ComputeListBindComputePipeline(_compute_list, _compute_pipeline);
             _rd.ComputeListBindUniformSet(_compute_list, _uniform_set, 0);
             _rd.ComputeListDispatch(_compute_list, workgroups * (uint)chunk_batch.Count, workgroups, workgroups);
             _rd.ComputeListEnd();
+            
             _compute_rids_to_free.AddRange([_voxel_buffer_rid, _atomic_counter_rid, vertex_buffer_rid, normals_buffer_rid, uvs_buffer_rid]);
             chunk_batch_list.Add((vertex_buffer_rid, normals_buffer_rid, uvs_buffer_rid, _atomic_counter_rid, chunk_batch));
         }
+        
         _compute_rids_to_free.Add(_compute_pipeline);
+
+        setup_timer.Stop();
+        GD.Print("setup time elapsed: ", setup_timer.ElapsedMilliseconds, "ms");
+
+        var sync_timer = Stopwatch.StartNew();
 
         _rd.Submit();
         //await ChunkManager.Instance.ToSignal(ChunkManager.Instance.GetTree(), "physics_frame");
         //await ChunkManager.Instance.ToSignal(ChunkManager.Instance.GetTree(), "physics_frame");
         _rd.Sync();
+        sync_timer.Stop();
+        GD.Print($"Submit & Sync took {sync_timer.ElapsedMilliseconds}ms");
 
+        Stopwatch timer_meshes = new();
+        timer_meshes.Start();
         var meshDict = new Dictionary<Vector3I, MeshArrayDataPacket>();
         
         // read back data for each batch of chunks
         foreach (var (vert_buffer_rid, norm_buffer_rid, uv_buffer_rid, counter_rid, chunk_list) in chunk_batch_list)
         {
             var atomic_counter_readback = _rd.BufferGetData(counter_rid);
-            var vert_counts_readback = MemoryMarshal.Cast<byte, int>(atomic_counter_readback.AsSpan()).ToArray();
+            var vert_counts_readback = MemoryMarshal.Cast<byte, int>(atomic_counter_readback.AsSpan(0,chunk_list.Count*sizeof(uint))).ToArray();
 
             var mesh_callable = new MeshCallables(meshDict)
             {
@@ -488,47 +510,66 @@ public static class ComputeChunk
             var norm_callable = Callable.From((byte[] data)=> mesh_callable.ReadbackNormalsData(data));
             var uv_callable = Callable.From((byte[] data)=> mesh_callable.ReadbackUVData(data));
 
-            var vert_err = _rd.BufferGetDataAsync(vert_buffer_rid, vert_callable);
-            var norm_err =_rd.BufferGetDataAsync(norm_buffer_rid, norm_callable);
-            var uvs_err = _rd.BufferGetDataAsync(uv_buffer_rid, uv_callable);
+            var vert_bytes = _rd.BufferGetData(vert_buffer_rid);
+            var norm_bytes = _rd.BufferGetData(norm_buffer_rid);
+            var uv_bytes = _rd.BufferGetData(uv_buffer_rid);
+            
+            vert_callable.Call(vert_bytes);
+            norm_callable.Call(norm_bytes);
+            uv_callable.Call(uv_bytes);
+            
+            // var vert_err = _rd.BufferGetDataAsync(vert_buffer_rid, vert_callable);
+            // var norm_err =_rd.BufferGetDataAsync(norm_buffer_rid, norm_callable);
+            // var uvs_err = _rd.BufferGetDataAsync(uv_buffer_rid, uv_callable);
         }
 
         // do more work to force the async readbacks to finish
-        _rd.BufferGetData(_params_buffer_rid);
+        //_rd.BufferGetData(_params_buffer_rid);
 
+        timer_meshes.Stop();
+        GD.Print("reading data back into dictionary took: ", timer_meshes.ElapsedMilliseconds, "ms");
+
+        timer_meshes.Restart();
         foreach (var (chunk_position, mesh_data_packet) in meshDict)
         {
-            if (ChunkManager.MESHCACHE.TryGetValue(chunk_position, out var chunk))
-            {
-                var meshinstance = chunk.MeshInstance;
-                var mesh = (ArrayMesh)meshinstance.Mesh;
-                mesh.ClearSurfaces();
+            ChunkManager.QueueChunkToGenerate(chunk_position, mesh_data_packet);
+            // if (ChunkManager.MESHCACHE.TryGetValue(chunk_position, out var chunk))
+            // {
+            //     var meshinstance = chunk.MeshInstance;
+            //     var mesh = (ArrayMesh)meshinstance.Mesh;
+            //     mesh.ClearSurfaces();
 
-                if (mesh_data_packet.Vertices.Length == 0)
-                {
-                    chunk.CollisionShape.Shape = null;
-                    continue;
-                }
+            //     if (mesh_data_packet.Vertices.Length == 0)
+            //     {
+            //         chunk.CollisionShape.Shape = null;
+            //         continue;
+            //     }
 
-                var arrays = new Godot.Collections.Array();
-                arrays.Resize((int)Mesh.ArrayType.Max);
-                arrays[(int)Mesh.ArrayType.Vertex] = mesh_data_packet.Vertices;
-                arrays[(int)Mesh.ArrayType.Normal] = mesh_data_packet.Normals;
-                arrays[(int)Mesh.ArrayType.TexUV] = mesh_data_packet.UVs;
+            //     var arrays = new Godot.Collections.Array();
+            //     arrays.Resize((int)Mesh.ArrayType.Max);
+            //     arrays[(int)Mesh.ArrayType.Vertex] = mesh_data_packet.Vertices;
+            //     arrays[(int)Mesh.ArrayType.Normal] = mesh_data_packet.Normals;
+            //     arrays[(int)Mesh.ArrayType.TexUV] = mesh_data_packet.UVs;
 
-                var xform = new Transform3D(Basis.Identity, (Vector3)chunk_position*ChunkManager.CHUNK_SIZE);
+            //     var xform = new Transform3D(Basis.Identity, (Vector3)chunk_position*ChunkManager.CHUNK_SIZE);
                 
-                Callable.From(() => {
-                    mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
-                    chunk.GlobalTransform = xform;
-                }).CallDeferred();
+            //     Callable.From(() => {
+            //         mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+            //         chunk.GlobalTransform = xform;
+            //     }).CallDeferred();
                 
-            }
-            else GD.Print("Chunk not found in MESHCACHE: ", chunk_position);           
+            // }
+            // else GD.Print("Chunk not found in MESHCACHE: ", chunk_position);           
         }
+        timer_meshes.Stop();
+        foreach (var bufferobj in Instance._used_buffers)
+        {
+            PoolByteBufferObj(bufferobj);
+        }
+        GD.Print("processing data in dictionary, and pooling buffers, took: ", timer_meshes.ElapsedMilliseconds, "ms");
 
         stopwatch.Stop();
-        GD.Print($"compute shader building Meshes time elapsed: {stopwatch.ElapsedMilliseconds} ms");
+        GD.Print($"total meshing function time elapsed: {stopwatch.ElapsedMilliseconds} ms");
 
         _compute_rids_to_free.Add(_compute_shader);
         FreeRids(_rd, _compute_rids_to_free);
@@ -597,14 +638,14 @@ public static class ComputeChunk
 
         // trying to process any more than 21 chunks at once on the GPU will exceed max buffer sizes (buffers go up to 128MB, 21 chunks with MAX VERTEX each will be 122.472 mb)
         int chunk_batch_stride = 9;//chunksToGenerate.Count;
-        var bytes_per_chunk = ChunkManager.CSP3*sizeof(int);
+        var _voxel_bytes_per_chunk = ChunkManager.CSP3*sizeof(int);
         GD.Print("total chunks to mesh: ", chunksToMesh.Count);
         GD.Print("chunk batch size: ", chunk_batch_stride, $" i<({chunksToMesh.Count/chunk_batch_stride})");
 
         for (int i=0; i<Mathf.Ceil(chunksToMesh.Count/(float)chunk_batch_stride);i++)
         {
             var chunk_batch = chunksToMesh.Skip(i*chunk_batch_stride).Take(chunk_batch_stride).ToList();
-            var voxel_batch = voxel_data.AsSpan(i*chunk_batch_stride*bytes_per_chunk, chunk_batch.Count*bytes_per_chunk).ToArray();
+            var voxel_batch = voxel_data.AsSpan(i*chunk_batch_stride*_voxel_bytes_per_chunk, chunk_batch.Count*_voxel_bytes_per_chunk).ToArray();
             GD.Print($"meshing {chunk_batch.Count}, ({i*chunk_batch_stride}-{i*chunk_batch_stride+chunk_batch.Count}) chunks: ", chunk_batch.Select(x => x.ToString()).ToArray().Join(","));
             MeshMultiChunks(chunk_batch, voxel_batch);
         }
@@ -783,8 +824,8 @@ public static class ComputeChunk
         // Deserialize back into struct
         var outputParams = MemoryMarshal.Read<ChunkParamsStruct>(outputBytes);
         // Extract the float array (from structSize to end)
-        var vec4_array = new System.Numerics.Vector4[outputParams.NumChunksToCompute];
-        MemoryMarshal.Cast<byte, System.Numerics.Vector4>(outputBytes.AsSpan(Marshal.SizeOf<ChunkParamsStruct>())).CopyTo(vec4_array);
+        var vec4_array = new Vector4[outputParams.NumChunksToCompute];
+        MemoryMarshal.Cast<byte, Vector4>(outputBytes.AsSpan(Marshal.SizeOf<ChunkParamsStruct>())).CopyTo(vec4_array);
         
         // Print values for debugging
         GD.Print("DEBUG: reading back params buffer...");
@@ -806,7 +847,7 @@ public static class ComputeChunk
     public static void PrintDebugVariables()
     {
         GD.Print("MemoryMarshal size of ChunkParamsStruct in bytes: " + Marshal.SizeOf<ChunkParamsStruct>());
-        GD.Print("MemoryMarshal size of System.Numerics.Vector4 in bytes: " + Marshal.SizeOf<System.Numerics.Vector4>());
+        GD.Print("MemoryMarshal size of Vector4 in bytes: " + Marshal.SizeOf<Vector4>());
         
         GD.Print("MemoryMarshal size of input params boolean in bytes: " + Marshal.SizeOf<bool>());
         GD.Print("sizeof(bool): " + sizeof(bool));
@@ -896,8 +937,8 @@ public static class ComputeChunk
 
             var outputParams = MemoryMarshal.Read<ChunkParamsStruct>(params_bytes);
             // Extract the float array (from structSize to end)
-            var vec4_array = new System.Numerics.Vector4[outputParams.NumChunksToCompute];
-            MemoryMarshal.Cast<byte, System.Numerics.Vector4>(params_bytes.AsSpan(Marshal.SizeOf<ChunkParamsStruct>())).CopyTo(vec4_array);
+            var vec4_array = new Vector4[outputParams.NumChunksToCompute];
+            MemoryMarshal.Cast<byte, Vector4>(params_bytes.AsSpan(Marshal.SizeOf<ChunkParamsStruct>())).CopyTo(vec4_array);
             var chunkPosition = new Vector3I((int)vec4_array[0].X,(int)vec4_array[0].Y,(int)vec4_array[0].Z);
 
             //GD.Print("array length: " + array.Length);
@@ -1105,13 +1146,13 @@ public static class ComputeChunk
     private static byte[] GenerateParameterBufferBytes(List<Vector3I> chunkPositions)
     {
         Vector3 seedOffset = new(0, 0, 0);
-        var chunk_positions = new System.Numerics.Vector4[chunkPositions.Count];
+        var chunk_positions = new Vector4[chunkPositions.Count];
         for (var i=0; i<chunkPositions.Count; i++)
         {
-            chunk_positions[i] = new System.Numerics.Vector4(chunkPositions[i].X, chunkPositions[i].Y, chunkPositions[i].Z,0.0f);
+            chunk_positions[i] = new Vector4(chunkPositions[i].X, chunkPositions[i].Y, chunkPositions[i].Z,0.0f);
         }
 
-        input_params.SeedOffset = new System.Numerics.Vector4(seedOffset.X, seedOffset.Y, seedOffset.Z, 0.0f);
+        input_params.SeedOffset = new Vector4(seedOffset.X, seedOffset.Y, seedOffset.Z, 0.0f);
         input_params.NumChunksToCompute = chunkPositions.Count;
         input_params.MaxWorldHeight = MaxWorldHeight;
         input_params.CaveNoiseScale = CaveNoiseScale;
@@ -1126,14 +1167,14 @@ public static class ComputeChunk
         // and makes padding with the gpu harder (glsl pads bools to 4 bytes)
         var struct_size = Marshal.SizeOf<ChunkParamsStruct>();
         
-        var data_bytes = new byte[struct_size + (chunkPositions.Count * Marshal.SizeOf<System.Numerics.Vector4>())]; // Allocate space for struct + vec3 array
+        var data_bytes = new byte[struct_size + (chunkPositions.Count * Marshal.SizeOf<Vector4>())]; // Allocate space for struct + vec3 array
 
         // Copy the struct data into the start of the byte array
         
         MemoryMarshal.AsBytes(new Span<ChunkParamsStruct>(ref input_params)).CopyTo(data_bytes.AsSpan());
 
         // Serialize the vec3 (padded to vec4) array and append it to the byte array
-        var vec4_array_bytes = MemoryMarshal.AsBytes<System.Numerics.Vector4>(chunk_positions).ToArray();
+        var vec4_array_bytes = MemoryMarshal.AsBytes<Vector4>(chunk_positions).ToArray();
         vec4_array_bytes.CopyTo(data_bytes.AsSpan(struct_size));
 
         //GD.Print($"Generated parameter buffer bytes {data_bytes.Length}");
@@ -1143,10 +1184,10 @@ public static class ComputeChunk
 
     private static byte[] GenerateMeshParameterBufferBytes(List<Vector3I> chunksToMesh)
     {
-        var chunk_positions = new System.Numerics.Vector4[chunksToMesh.Count];
+        var chunk_positions = new Vector4[chunksToMesh.Count];
         for (var i=0; i<chunksToMesh.Count; i++)
         {
-            chunk_positions[i] = new System.Numerics.Vector4(chunksToMesh[i].X, chunksToMesh[i].Y, chunksToMesh[i].Z,0.0f);
+            chunk_positions[i] = new Vector4(chunksToMesh[i].X, chunksToMesh[i].Y, chunksToMesh[i].Z,0.0f);
         }
 
         var mesh_params = new MeshParamsStruct
@@ -1161,11 +1202,11 @@ public static class ComputeChunk
 
         var struct_size = Marshal.SizeOf<MeshParamsStruct>();
         
-        var data_bytes = new byte[struct_size + (chunksToMesh.Count * Marshal.SizeOf<System.Numerics.Vector4>())]; // Allocate space for struct + vec3 array
+        var data_bytes = new byte[struct_size + (chunksToMesh.Count * Marshal.SizeOf<Vector4>())]; // Allocate space for struct + vec3 array
 
         MemoryMarshal.AsBytes(new Span<MeshParamsStruct>(ref mesh_params)).CopyTo(data_bytes.AsSpan());
 
-        var vec4_array_bytes = MemoryMarshal.AsBytes<System.Numerics.Vector4>(chunk_positions).ToArray();
+        var vec4_array_bytes = MemoryMarshal.AsBytes<Vector4>(chunk_positions).ToArray();
         vec4_array_bytes.CopyTo(data_bytes.AsSpan(struct_size));
 
         return data_bytes;

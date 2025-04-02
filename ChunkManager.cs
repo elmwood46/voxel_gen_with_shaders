@@ -3,6 +3,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
 
@@ -58,6 +59,8 @@ public partial class ChunkManager : Node3D
     [Export] public MeshInstance3D ChunkMesh {get; set;}
     private Vector3I _prevChunkPosition = new(int.MinValue,int.MinValue,int.MinValue);
 
+    private static readonly ConcurrentQueue<(Vector3I, MeshArrayDataPacket)> _chunksToGenerate = new();
+
     private static readonly Vector3I[] CUBE_VERTS =
         {
             new(0, 0, 0),
@@ -92,6 +95,49 @@ public partial class ChunkManager : Node3D
     public override void _Ready()
     {
         UpdateRenderDistance(true);
+    }
+
+
+    public int MaxChunksToProcessPerFrame = 4;
+    public override void _Process(double delta)
+    {
+        for (int i=0; i < MaxChunksToProcessPerFrame; i++)
+        if (!_chunksToGenerate.IsEmpty && _chunksToGenerate.TryDequeue(out var data))
+        {
+            var (pos, packet) = data;
+
+            if (MESHCACHE.TryGetValue(pos, out var chunk))
+            {
+                var meshinstance = chunk.MeshInstance;
+                var mesh = (ArrayMesh)meshinstance.Mesh;
+                mesh.ClearSurfaces();
+                if (packet.Vertices.Length == 0)
+                {
+                    chunk.CollisionShape.Shape = null;
+                    continue;
+                }
+
+                var arrays = new Godot.Collections.Array();
+                arrays.Resize((int)Mesh.ArrayType.Max);
+                arrays[(int)Mesh.ArrayType.Vertex] = packet.Vertices;
+                arrays[(int)Mesh.ArrayType.Normal] = packet.Normals;
+                arrays[(int)Mesh.ArrayType.TexUV] = packet.UVs;
+                //GD.Print(packet.Vertices.Take(10).ToArray().Join(","));
+
+                var xform = new Transform3D(Basis.Identity, (Godot.Vector3)pos*CHUNK_SIZE);
+                
+                Callable.From(() => {
+                    mesh.AddSurfaceFromArrays(Mesh.PrimitiveType.Triangles, arrays);
+                    chunk.GlobalTransform = xform;
+                }).CallDeferred();
+                
+            }
+        }
+    }
+
+    public static void QueueChunkToGenerate(Vector3I chunk_position, MeshArrayDataPacket packet)
+    {
+        _chunksToGenerate.Enqueue((chunk_position, packet));
     }
 
     public void ClearAndInitializeMeshCache()
@@ -198,6 +244,11 @@ public partial class ChunkManager : Node3D
     public override void _PhysicsProcess(double delta)
     {
         GetNode<Label>("%FPSLabel").Text = $"FPS: {Engine.GetFramesPerSecond()}";
+    }
+
+    public void UpdateMeshesTest()
+    {
+        UpdateMeshesTest(false);
     }
 
     public void UpdateMeshesTest(bool sequential = false)
